@@ -1,5 +1,4 @@
-# shope_collection_app
-
+# Construction Store Mobile Application
 A new Flutter project.
 
 ## Getting Started
