@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1099117948271",
+    "project_id": "construction-store-mobile-app",
+    "storage_bucket": "construction-store-mobile-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099117948271:android:992f26f1a20063455bcc9a",
+        "android_client_info": {
+          "package_name": "com.example.shope_collection_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChzN6W8DSLH76ngYBtHLh0ApNs83e75c4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

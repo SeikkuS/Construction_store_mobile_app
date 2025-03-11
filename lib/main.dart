@@ -8,10 +8,13 @@ import 'package:construction_store_mobile_app/controllers/favorites_notifier.dar
 import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
 import 'package:construction_store_mobile_app/controllers/product_provider.dart';
 import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final dir = await getApplicationDocumentsDirectory();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   Hive.init(dir.path);
 
