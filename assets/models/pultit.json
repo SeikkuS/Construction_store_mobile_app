@@ -1,0 +1,36 @@
+[
+    {
+        "id": "1",
+        "name": "Pultti 1",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+        "price": "19.90",
+        "category": "Pultit",
+        "image": "assets/images/pultti1.webp",
+        "description": "No ihan ok pultti.",
+        "title": "Raksakaupan pulttien ensimmäinen iteraatio",
+        "oldPrice": "100500.00"
+    },
+    {
+        "id": "2",
+        "name": "Pultti 2",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+        "price": "24.90",
+        "category": "Pultit",
+        "image": "assets/images/pultti1.webp",
+        "description": "Tätä pulttia ei kenenkään pitäisi ostaa.",
+        "title": "Raksakaupan pulttien toinen luksusmalli",
+        "oldPrice": "89,90"
+    }
+]

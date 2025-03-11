@@ -1,0 +1,38 @@
+[
+    {
+        "id": "1",
+        "name": "Mutteri 1",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+
+        "price": "18.90",
+        "category": "Mutterit",
+        "image": "assets/images/mutteri1.webp",
+        "description": "No nyt on mutteri!",
+        "title": "Raksakaupan mutterien ensimmäinen iteraatio",
+        "oldPrice": "28.50"
+    },
+    {
+        "id": "2",
+        "name": "Mutteri 2",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+
+        "price": "16.49",
+        "category": "Mutterit",
+        "image": "assets/images/mutteri1.webp",
+        "description": "Parempaa mutteria et löydä rautakaupasta!",
+        "title": "Raksakaupan toinen paranneltu malli mutterista",
+        "oldPrice": "104,49"
+    }
+]

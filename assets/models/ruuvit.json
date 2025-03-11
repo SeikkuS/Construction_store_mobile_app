@@ -1,0 +1,36 @@
+[
+    {
+        "id": "1",
+        "name": "Ruuvi 1",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+        "price": "20.00",
+        "category": "Ruuvit",
+        "image": "assets/images/ruuvi1.webp",
+        "description": "No sehän on ihan tavallinen ruuvi.",
+        "title": "Raksakaupan ruuvien ensimmäinen iteraatio",
+        "oldPrice": "1893299.00"
+    },
+    {
+        "id": "2",
+        "name": "Ruuvi 2",
+        "sizes": [
+            {"size": "1", "isSelected": false},
+            {"size": "2", "isSelected": false},
+            {"size": "3", "isSelected": false},
+            {"size": "4", "isSelected": false},
+            {"size": "5", "isSelected": false}
+        ],
+        "price": "22.00",
+        "category": "Ruuvit",
+        "image": "assets/images/ruuvi1.webp",
+        "description": "Tavallista kalliimpi ruuvi!",
+        "title": "Raksakaupan ruuvien toinen paranneltu malli",
+        "oldPrice": "49,90"
+    }
+]
