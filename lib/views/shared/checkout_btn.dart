@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shope_collection_app/views/shared/appstyle.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
 
 class CheckOutButton extends StatelessWidget {
   const CheckOutButton({super.key, this.onTap, required this.label});

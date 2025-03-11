@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import 'package:shope_collection_app/controllers/favorites_notifier.dart';
-import 'package:shope_collection_app/views/shared/appstyle.dart';
-import 'package:shope_collection_app/views/shared/reusable_text.dart';
-import 'package:shope_collection_app/views/ui/favoritespage.dart';
+import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
+import 'package:construction_store_mobile_app/views/shared/reusable_text.dart';
+import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
 
 class ProductC extends StatefulWidget {
   const ProductC({
@@ -28,6 +28,8 @@ class ProductC extends StatefulWidget {
 }
 
 class _ProductCState extends State<ProductC> {
+  bool selected = false;
+
   @override
   Widget build(BuildContext context) {
     var favoritesNotifier = Provider.of<FavoritesNotifier>(
@@ -35,8 +37,6 @@ class _ProductCState extends State<ProductC> {
       listen: true,
     );
     favoritesNotifier.getFavorites();
-
-    bool selected = true;
     return Padding(
       padding: EdgeInsets.only(left: 8.w, right: 20.w),
       child: ClipRRect(

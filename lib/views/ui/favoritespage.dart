@@ -1,6 +1,6 @@
-import 'package:shope_collection_app/views/shared/export_packages.dart';
-import 'package:shope_collection_app/views/shared/export.dart';
-import 'package:shope_collection_app/views/ui/mainscreen.dart';
+import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
+import 'package:construction_store_mobile_app/views/shared/export.dart';
+import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({super.key});

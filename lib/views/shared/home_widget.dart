@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import 'package:shope_collection_app/controllers/product_provider.dart';
-import 'package:shope_collection_app/models/product_model.dart';
-import 'package:shope_collection_app/views/shared/appstyle.dart';
-import 'package:shope_collection_app/views/shared/new_products.dart';
-import 'package:shope_collection_app/views/shared/product_card.dart';
-import 'package:shope_collection_app/views/shared/reusable_text.dart';
-import 'package:shope_collection_app/views/ui/product_by_cart.dart';
-import 'package:shope_collection_app/views/ui/product_page.dart';
+import 'package:construction_store_mobile_app/controllers/product_provider.dart';
+import 'package:construction_store_mobile_app/models/product_model.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
+import 'package:construction_store_mobile_app/views/shared/new_products.dart';
+import 'package:construction_store_mobile_app/views/shared/product_card.dart';
+import 'package:construction_store_mobile_app/views/shared/reusable_text.dart';
+import 'package:construction_store_mobile_app/views/ui/product_by_cart.dart';
+import 'package:construction_store_mobile_app/views/ui/product_page.dart';
 
 class HomeWidget extends StatelessWidget {
   const HomeWidget({

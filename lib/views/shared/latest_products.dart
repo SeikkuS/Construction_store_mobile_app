@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:shope_collection_app/models/product_model.dart';
-import 'package:shope_collection_app/views/shared/stagger_tile.dart';
+import 'package:construction_store_mobile_app/models/product_model.dart';
+import 'package:construction_store_mobile_app/views/shared/stagger_tile.dart';
 
 class LatestProducts extends StatelessWidget {
   const LatestProducts({super.key, required Future<List<Products>> products})

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shope_collection_app/views/shared/appstyle.dart';
-import 'package:shope_collection_app/views/shared/reusable_text.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
+import 'package:construction_store_mobile_app/views/shared/reusable_text.dart';
 
 class StaggerTile extends StatefulWidget {
   const StaggerTile({

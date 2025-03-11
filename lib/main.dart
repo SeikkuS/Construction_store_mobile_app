@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:shope_collection_app/controllers/cart_provider.dart';
-import 'package:shope_collection_app/controllers/favorites_notifier.dart';
-import 'package:shope_collection_app/controllers/mainscreen_provider.dart';
-import 'package:shope_collection_app/controllers/product_provider.dart';
-import 'package:shope_collection_app/views/ui/mainscreen.dart';
+import 'package:construction_store_mobile_app/controllers/cart_provider.dart';
+import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
+import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
+import 'package:construction_store_mobile_app/controllers/product_provider.dart';
+import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

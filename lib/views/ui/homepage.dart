@@ -1,6 +1,6 @@
-import 'package:shope_collection_app/views/shared/export_packages.dart';
-import 'package:shope_collection_app/views/shared/export.dart';
-import 'package:shope_collection_app/views/shared/home_widget.dart';
+import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
+import 'package:construction_store_mobile_app/views/shared/export.dart';
+import 'package:construction_store_mobile_app/views/shared/home_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

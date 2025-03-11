@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import 'package:shope_collection_app/controllers/mainscreen_provider.dart';
-import 'package:shope_collection_app/views/shared/bottom_nav_widget.dart';
+import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
+import 'package:construction_store_mobile_app/views/shared/bottom_nav_widget.dart';
 
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({super.key});

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shope_collection_app/controllers/mainscreen_provider.dart';
-import 'package:shope_collection_app/views/shared/bottom_nav.dart';
-import 'package:shope_collection_app/views/ui/cartpage.dart';
-import 'package:shope_collection_app/views/ui/favoritespage.dart';
-import 'package:shope_collection_app/views/ui/homepage.dart';
-import 'package:shope_collection_app/views/ui/profile.dart';
-import 'package:shope_collection_app/views/ui/searchpage.dart';
+import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
+import 'package:construction_store_mobile_app/views/shared/bottom_nav.dart';
+import 'package:construction_store_mobile_app/views/ui/cartpage.dart';
+import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
+import 'package:construction_store_mobile_app/views/ui/homepage.dart';
+import 'package:construction_store_mobile_app/views/ui/profile.dart';
+import 'package:construction_store_mobile_app/views/ui/searchpage.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});

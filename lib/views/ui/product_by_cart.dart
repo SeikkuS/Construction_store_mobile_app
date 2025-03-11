@@ -1,8 +1,8 @@
-import 'package:shope_collection_app/views/shared/export_packages.dart';
-import 'package:shope_collection_app/views/shared/export.dart';
-import 'package:shope_collection_app/views/shared/category_btn.dart';
-import 'package:shope_collection_app/views/shared/custom_spacer.dart';
-import 'package:shope_collection_app/views/shared/latest_products.dart';
+import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
+import 'package:construction_store_mobile_app/views/shared/export.dart';
+import 'package:construction_store_mobile_app/views/shared/category_btn.dart';
+import 'package:construction_store_mobile_app/views/shared/custom_spacer.dart';
+import 'package:construction_store_mobile_app/views/shared/latest_products.dart';
 
 class ProductByCart extends StatefulWidget {
   const ProductByCart({super.key, required this.tabIndex});

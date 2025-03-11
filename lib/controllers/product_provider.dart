@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shope_collection_app/models/product_model.dart';
-import 'package:shope_collection_app/services/helper.dart';
+import 'package:construction_store_mobile_app/models/product_model.dart';
+import 'package:construction_store_mobile_app/services/helper.dart';
 
 class ProductNotifier extends ChangeNotifier {
   int _activepage = 0;

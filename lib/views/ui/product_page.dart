@@ -1,5 +1,5 @@
-import 'package:shope_collection_app/views/shared/export_packages.dart';
-import 'package:shope_collection_app/views/shared/export.dart';
+import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
+import 'package:construction_store_mobile_app/views/shared/export.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key, required this.category, required this.id});

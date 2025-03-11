@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart' as the_bundle;
-import 'package:shope_collection_app/models/product_model.dart';
+import 'package:construction_store_mobile_app/models/product_model.dart';
 
 class Helper {
   //  Ruuvi List
