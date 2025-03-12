@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 
-class reusableText extends StatelessWidget {
-  const reusableText({super.key, required this.text, required this.style});
+class ReusableText extends StatelessWidget {
+  const ReusableText({
+    super.key,
+    required this.text,
+    required this.style,
+    this.maxLines = 1, // Default to 1 line
+    this.overflow = TextOverflow.fade, // Default to fade
+    this.textAlign = TextAlign.left,
+    this.softWrap = false,
+  });
 
   final String text;
   final TextStyle style;
+  final int maxLines;
+  final TextOverflow overflow;
+  final TextAlign textAlign;
+  final bool softWrap;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      maxLines: 1,
-      overflow: TextOverflow.fade,
-      textAlign: TextAlign.left,
-      softWrap: false,
+      maxLines: maxLines,
+      overflow: overflow,
+      textAlign: textAlign,
+      softWrap: softWrap,
       style: style,
     );
   }

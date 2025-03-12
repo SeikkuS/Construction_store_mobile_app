@@ -11,9 +11,16 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   @override
+  void initState() {
+    super.initState();
+    // Fetch the cart items from Firestore when the page is initialized
+    var cartProvider = Provider.of<CartProvider>(context, listen: false);
+    cartProvider.getCart();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var cartProvider = Provider.of<CartProvider>(context);
-    cartProvider.getCart();
 
     return Scaffold(
       backgroundColor: const Color(0xFFE2E2E2),
@@ -27,11 +34,11 @@ class _CartPageState extends State<CartPage> {
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    // Simply pop the current screen to go back to the previous screen (MainScreen)
+                    Navigator.pop(context); // Return to the MainScreen
                   },
                   child: Icon(Ionicons.close, color: Colors.black),
                 ),
-
                 Text(
                   "My Cart",
                   style: appstyle(36, Colors.black, FontWeight.bold),
@@ -45,13 +52,10 @@ class _CartPageState extends State<CartPage> {
                     itemBuilder: (context, index) {
                       final data = cartProvider.cart[index];
                       return Padding(
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         child: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                           child: Container(
-                            height: MediaQuery.of(context).size.height * 0.11,
-                            width: MediaQuery.of(context).size.width,
-
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               boxShadow: [
@@ -64,165 +68,124 @@ class _CartPageState extends State<CartPage> {
                               ],
                             ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(12),
-
-                                          child: Image.asset(
-                                            data['image'],
-                                            width: 70,
-                                            height: 70,
-                                            fit: BoxFit.fill,
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(
+                                    data['image'],
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 12, left: 20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Text widget with maxLines and overflow handling to prevent text overflow
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.6, // limit the width of the name
+                                        child: Text(
+                                          data['name'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: appstyle(
+                                            16,
+                                            Colors.black,
+                                            FontWeight.bold,
                                           ),
                                         ),
-                                        Positioned(
-                                          bottom: -2,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              cartProvider.deleteCart(
-                                                data['key'],
-                                              );
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (context) => MainScreen(),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              width: 40,
-                                              height: 30,
-                                              decoration: const BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(12),
-                                                ),
-                                              ),
-                                              child: const Icon(
-                                                Ionicons.trash_outline,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      // Category text with maxLines and overflow handling
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.6, // limit the width of the category
+                                        child: Text(
+                                          data['category'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: appstyle(
+                                            14,
+                                            Colors.grey,
+                                            FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data['price'].toString(),
+                                            style: appstyle(
+                                              18,
+                                              Colors.black,
+                                              FontWeight.w600,
                                             ),
+                                          ),
+                                          const SizedBox(width: 40),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ), // Added extra spacing below the price
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(16),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            cartProvider.decrementQty(
+                                              data['key'],
+                                            );
+                                          },
+                                          child: const Icon(
+                                            Ionicons.remove_circle,
+                                            size: 24,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Text(
+                                          data['qty'].toString(),
+                                          style: appstyle(
+                                            16,
+                                            Colors.black,
+                                            FontWeight.w600,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            cartProvider.incrementQty(
+                                              data['key'],
+                                            );
+                                          },
+                                          child: const Icon(
+                                            Ionicons.add_circle,
+                                            size: 24,
+                                            color: Colors.black,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        top: 12,
-                                        left: 20,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['name'],
-                                            style: appstyle(
-                                              16,
-                                              Colors.black,
-                                              FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            data['category'],
-                                            style: appstyle(
-                                              14,
-                                              Colors.grey,
-                                              FontWeight.w600,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                data['price'],
-                                                style: appstyle(
-                                                  18,
-                                                  Colors.black,
-                                                  FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 40),
-                                              Text(
-                                                "Size",
-                                                style: appstyle(
-                                                  18,
-                                                  Colors.black,
-                                                  FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 40),
-                                              Text(
-                                                data['sizes'].join(", "),
-                                                style: appstyle(
-                                                  18,
-                                                  Colors.black,
-                                                  FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Container(
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(16),
-                                          ),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {},
-                                              child: const Icon(
-                                                Ionicons.remove_circle,
-                                                size: 24,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            Text(
-                                              data['qty'].toString(),
-                                              style: appstyle(
-                                                16,
-                                                Colors.black,
-                                                FontWeight.w600,
-                                              ),
-                                            ),
-                                            InkWell(
-                                              onTap: () {},
-                                              child: const Icon(
-                                                Ionicons.add_circle,
-                                                size: 24,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),

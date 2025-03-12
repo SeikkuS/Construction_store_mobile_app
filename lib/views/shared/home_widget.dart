@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:provider/provider.dart';
-import 'package:construction_store_mobile_app/controllers/product_provider.dart';
 import 'package:construction_store_mobile_app/models/product_model.dart';
 import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
 import 'package:construction_store_mobile_app/views/shared/new_products.dart';
@@ -23,7 +21,6 @@ class HomeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var productNotifier = Provider.of<ProductNotifier>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,7 +42,6 @@ class HomeWidget extends StatelessWidget {
                     final product = snapshot.data![index];
                     return GestureDetector(
                       onTap: () {
-                        productNotifier.productSizes = product.sizes;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -57,12 +53,16 @@ class HomeWidget extends StatelessWidget {
                           ),
                         );
                       },
-                      child: ProductC(
-                        price: "${product.price}€",
-                        category: product.category,
-                        id: product.id,
-                        name: product.name,
-                        image: product.image, //INSERT IMAGE NETWORK URL
+                      child: SizedBox(
+                        width:
+                            253.w, // 225.w (card width) + 8.w (left padding) + 20.w (right padding)
+                        child: ProductC(
+                          price: "${product.price}€",
+                          category: product.category,
+                          id: product.id,
+                          name: product.name,
+                          image: product.imageUrl,
+                        ),
                       ),
                     );
                   },
@@ -78,7 +78,7 @@ class HomeWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  reusableText(
+                  ReusableText(
                     text: "Uutuudet",
                     style: appstyle(24, Colors.black, FontWeight.bold),
                   ),
@@ -94,7 +94,7 @@ class HomeWidget extends StatelessWidget {
                     },
                     child: Row(
                       children: [
-                        reusableText(
+                        ReusableText(
                           text: "Näytä kaikki",
                           style: appstyle(22, Colors.black, FontWeight.w500),
                         ),
@@ -127,7 +127,7 @@ class HomeWidget extends StatelessWidget {
                       padding: EdgeInsets.all(8.0.h),
                       child: NewProducts(
                         onTap: () {
-                          productNotifier.productSizes = product.sizes;
+                          // No need to handle sizes anymore
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -139,7 +139,7 @@ class HomeWidget extends StatelessWidget {
                             ),
                           );
                         },
-                        imagePath: product.image,
+                        imagePath: product.imageUrl, // Only one image
                       ),
                     );
                   },

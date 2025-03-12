@@ -1,6 +1,8 @@
-import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
-import 'package:construction_store_mobile_app/views/shared/export.dart';
-import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
+import 'package:flutter/material.dart';
+import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({super.key});
@@ -11,153 +13,156 @@ class Favorites extends StatefulWidget {
 
 class _FavoritesState extends State<Favorites> {
   @override
+  void initState() {
+    super.initState();
+    final favoritesNotifier = Provider.of<FavoritesNotifier>(
+      context,
+      listen: false,
+    );
+    favoritesNotifier.getFavorites(); // Fetch favorites from Firestore
+  }
+
+  @override
   Widget build(BuildContext context) {
     var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
-    favoritesNotifier.getAllData();
+    final favorites = favoritesNotifier.favorites;
+
     return Scaffold(
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+      backgroundColor: const Color(0xFFE2E2E2),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
         child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 45, 0, 0),
-              height: MediaQuery.of(context).size.height * 0.4,
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    "assets/images/bgtest.webp",
-                  ), //add link to background image
-                  fit: BoxFit.fill,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); // Go back to the previous screen
+                  },
+                  child: const Icon(Ionicons.close, color: Colors.black),
                 ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
+                Text(
                   "My Favorites",
-                  style: appstyle(40, Colors.white, FontWeight.bold),
+                  style: appstyle(36, Colors.black, FontWeight.bold),
                 ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: ListView.builder(
-                itemCount: favoritesNotifier.fav.length,
-                padding: const EdgeInsets.only(top: 100),
-                itemBuilder: (BuildContext context, int index) {
-                  final product = favoritesNotifier.fav[index];
-                  return Padding(
-                    padding: EdgeInsets.all(8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.11,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade500,
-                              blurRadius: 0.3,
-                              spreadRadius: 5,
-                              offset: const Offset(0, 1),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.65,
+                  child: ListView.builder(
+                    itemCount: favorites.length,
+                    padding: EdgeInsets.zero,
+                    itemBuilder: (context, index) {
+                      final product = favorites[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(12),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade500,
+                                  spreadRadius: 5,
+                                  blurRadius: 0.3,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                // Product Image
                                 Padding(
-                                  padding: EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(12),
                                   child: Image.asset(
-                                    product['image'],
-                                    height: 70,
+                                    product['image'] ??
+                                        'assets/images/placeholder.png',
                                     width: 70,
+                                    height: 70,
                                     fit: BoxFit.fill,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/placeholder.png',
+                                      );
+                                    },
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 12,
-                                    left: 20,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product['name'],
-                                        style: appstyle(
-                                          16,
-                                          Colors.black,
-                                          FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 5),
-                                      Text(
-                                        product['category'],
-                                        style: appstyle(
-                                          14,
-                                          Colors.grey,
-                                          FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "${product['price']}",
-                                                style: appstyle(
-                                                  18,
-                                                  Colors.black,
-                                                  FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
+                                // Product Details
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 12,
+                                      left: 20,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product['name'] ?? 'Unknown Product',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: appstyle(
+                                            16,
+                                            Colors.black,
+                                            FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          product['category'] ??
+                                              'Unknown Category',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: appstyle(
+                                            14,
+                                            Colors.grey,
+                                            FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          "${product['price'] ?? 'N/A'}",
+                                          style: appstyle(
+                                            18,
+                                            Colors.black,
+                                            FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Heart Icon
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Ionicons.heart,
+                                      color: Colors.black,
+                                    ),
+                                    onPressed: () async {
+                                      await favoritesNotifier.deleteFav(
+                                        product['key'],
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: EdgeInsets.all(8),
-                              child: GestureDetector(
-                                onTap: () {
-                                  favoritesNotifier.deleteFav(product['key']);
-
-                                  favoritesNotifier.ids.removeWhere(
-                                    (element) => element == product['id'],
-                                  );
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MainScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Icon(
-                                  Ionicons.heart_dislike,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -37,7 +37,7 @@ class LatestProducts extends StatelessWidget {
                   (index % 4 == 1 || index % 4 == 3) ? 285.h : 252.h;
 
               return StaggerTile(
-                imagePath: product.image,
+                imagePath: product.imageUrl,
                 name: product.name,
                 price: "${product.price}€",
                 height: tileHeight,

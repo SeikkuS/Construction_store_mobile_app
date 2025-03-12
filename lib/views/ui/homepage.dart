@@ -16,14 +16,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   );
 
   @override
-  Widget build(BuildContext context) {
-    var productNotifier = Provider.of<ProductNotifier>(context);
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
+  void initState() {
+    super.initState();
+    // Use listen: false in initState to avoid rebuilding unnecessarily.
+    final productNotifier = Provider.of<ProductNotifier>(
+      context,
+      listen: false,
+    );
+    final favoritesNotifier = Provider.of<FavoritesNotifier>(
+      context,
+      listen: false,
+    );
 
+    // Fetch data from Firestore once at startup.
     favoritesNotifier.getFavorites();
     productNotifier.getRuuvit();
     productNotifier.getPultit();
     productNotifier.getMutterit();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var productNotifier = Provider.of<ProductNotifier>(context);
+    // favoritesNotifier.getFavorites(); // No longer needed here
 
     return Scaffold(
       backgroundColor: const Color(0xFFE2E2E2),
@@ -39,7 +54,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 image: DecorationImage(
                   image: AssetImage(
                     "assets/images/bgtest.webp",
-                  ), //add link to background image
+                  ), // Link to background image
                   fit: BoxFit.fill,
                 ),
               ),
@@ -50,7 +65,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    reusableText(
+                    ReusableText(
                       text: "Raksatavarakauppa",
                       style: appstyleWithHeight(
                         32,
@@ -59,7 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         1.5,
                       ),
                     ),
-                    reusableText(
+                    ReusableText(
                       text: "Tavaraperkele Oy",
                       style: appstyleWithHeight(
                         20,
@@ -68,7 +83,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         1.2,
                       ),
                     ),
-
                     TabBar(
                       padding: EdgeInsets.zero,
                       indicatorSize: TabBarIndicatorSize.label,
@@ -78,7 +92,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       labelColor: Colors.white,
                       labelStyle: appstyle(24, Colors.black, FontWeight.bold),
                       unselectedLabelColor: Colors.white.withOpacity(0.6),
-
                       tabs: const [
                         Tab(text: "Ruuveja"),
                         Tab(text: "Pultteja"),
@@ -89,7 +102,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
             ),
-
             Padding(
               padding: EdgeInsets.only(top: 203.h),
               child: Container(
@@ -98,15 +110,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   controller: _tabController,
                   children: [
                     HomeWidget(
-                      ruuvit: productNotifier.ruuvit,
+                      ruuvit:
+                          productNotifier
+                              .ruuvit, // Expected to be a Future<List<Products>>
                       tabIndex: _tabController.index,
                     ),
                     HomeWidget(
-                      ruuvit: productNotifier.pultit,
+                      ruuvit:
+                          productNotifier
+                              .pultit, // Expected to be a Future<List<Products>>
                       tabIndex: _tabController.index,
                     ),
                     HomeWidget(
-                      ruuvit: productNotifier.mutterit,
+                      ruuvit:
+                          productNotifier
+                              .mutterit, // Expected to be a Future<List<Products>>
                       tabIndex: _tabController.index,
                     ),
                   ],

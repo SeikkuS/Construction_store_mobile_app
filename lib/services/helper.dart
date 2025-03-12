@@ -1,70 +1,58 @@
-import 'package:flutter/services.dart' as the_bundle;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:construction_store_mobile_app/models/product_model.dart';
 
 class Helper {
-  //  Ruuvi List
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Fetch Ruuvit products from Firestore by category filter
   Future<List<Products>> getRuuvit() async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/ruuvit.json",
-    );
-    final ruuviList = productsFromJson(data);
+    QuerySnapshot snapshot =
+        await _firestore
+            .collection('products')
+            .where('category', isEqualTo: 'Ruuvit')
+            .get();
 
-    return ruuviList;
+    return snapshot.docs.map((doc) => Products.fromFirestore(doc)).toList();
   }
 
-  //  Pultti list
+  // Fetch Pultit products from Firestore by category filter
   Future<List<Products>> getPultit() async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/pultit.json",
-    );
-    final pulttiList = productsFromJson(data);
+    QuerySnapshot snapshot =
+        await _firestore
+            .collection('products')
+            .where('category', isEqualTo: 'Pultit')
+            .get();
 
-    return pulttiList;
+    return snapshot.docs.map((doc) => Products.fromFirestore(doc)).toList();
   }
 
-  //  Mutteri list
+  // Fetch Mutterit products from Firestore by category filter
   Future<List<Products>> getMutterit() async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/mutterit.json",
-    );
-    final mutteriList = productsFromJson(data);
+    QuerySnapshot snapshot =
+        await _firestore
+            .collection('products')
+            .where('category', isEqualTo: 'Mutterit')
+            .get();
 
-    return mutteriList;
+    return snapshot.docs.map((doc) => Products.fromFirestore(doc)).toList();
   }
 
-  // Single mutteri
-  Future<Products> getMutteritById(String id) async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/mutterit.json",
-    );
-    final mutteriList = productsFromJson(data);
+  // Fetch a single product by document ID (not by custom 'id' field)
+  Future<Products> getProductById(String productId) async {
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore
+              .collection('products')
+              .doc(productId) // Query by document ID directly
+              .get();
 
-    final product = mutteriList.firstWhere((product) => product.id == id);
-
-    return product;
-  }
-
-  // Single pultti
-  Future<Products> getPultitById(String id) async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/pultit.json",
-    );
-    final pulttiList = productsFromJson(data);
-
-    final product = pulttiList.firstWhere((product) => product.id == id);
-
-    return product;
-  }
-
-  // Single ruuvi
-  Future<Products> getRuuvitById(String id) async {
-    final data = await the_bundle.rootBundle.loadString(
-      "assets/models/ruuvit.json",
-    );
-    final ruuviList = productsFromJson(data);
-
-    final product = ruuviList.firstWhere((product) => product.id == id);
-
-    return product;
+      if (snapshot.exists) {
+        return Products.fromFirestore(snapshot);
+      } else {
+        throw Exception("Product not found");
+      }
+    } catch (e) {
+      throw Exception("Product not found: $e");
+    }
   }
 }

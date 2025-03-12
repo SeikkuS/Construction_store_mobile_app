@@ -43,6 +43,7 @@ class ProductNotifier extends ChangeNotifier {
   late Future<List<Products>> mutterit;
   late Future<Products> product;
 
+  // Fetch products by category (for browsing)
   void getRuuvit() {
     ruuvit = Helper().getRuuvit();
   }
@@ -55,14 +56,9 @@ class ProductNotifier extends ChangeNotifier {
     mutterit = Helper().getMutterit();
   }
 
-  void getProducts(String category, String id) {
-    if (category == "Ruuvit") {
-      product = Helper().getRuuvitById(id);
-    } else if (category == "Pultit") {
-      product = Helper().getPultitById(id);
-    } else if (category == "Mutterit") {
-      product = Helper().getMutteritById(id);
-    }
+  // Fetch a single product by ID (for the product detail page)
+  void getProductById(String id) {
+    product = Helper().getProductById(id);
   }
 
   void toggleSizeSelection(int index) {

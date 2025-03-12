@@ -31,12 +31,17 @@ class _ProductCState extends State<ProductC> {
   bool selected = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FavoritesNotifier>(context, listen: false).getFavorites();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(
-      context,
-      listen: true,
-    );
-    favoritesNotifier.getFavorites();
+    var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
+
     return Padding(
       padding: EdgeInsets.only(left: 8.w, right: 20.w),
       child: ClipRRect(
@@ -57,6 +62,7 @@ class _ProductCState extends State<ProductC> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Image Section
               Stack(
                 children: [
                   Container(
@@ -65,13 +71,12 @@ class _ProductCState extends State<ProductC> {
                       image: DecorationImage(
                         image: AssetImage(widget.image),
                         fit: BoxFit.cover,
-                      ), // USE NETWORK IMAGES ON REAL PAGE, LOCALLY RUN ATM THROUGH ASSETS FOLDER
+                      ),
                     ),
                   ),
                   Positioned(
                     right: 10.w,
                     top: 10.h,
-
                     child: GestureDetector(
                       onTap: () async {
                         if (favoritesNotifier.ids.contains(widget.id)) {
@@ -94,18 +99,19 @@ class _ProductCState extends State<ProductC> {
                       },
                       child:
                           favoritesNotifier.ids.contains(widget.id)
-                              ? const Icon(Ionicons.heart)
+                              ? const Icon(Ionicons.heart, color: Colors.black)
                               : const Icon(Ionicons.heart_outline),
                     ),
                   ),
                 ],
               ),
+              // Text Section (Name and Category)
               Padding(
                 padding: EdgeInsets.only(left: 8.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    reusableText(
+                    ReusableText(
                       text: widget.name,
                       style: appstyleWithHeight(
                         34,
@@ -113,8 +119,10 @@ class _ProductCState extends State<ProductC> {
                         FontWeight.bold,
                         1.1,
                       ),
+                      maxLines: 2, // Limit to 2 lines
+                      overflow: TextOverflow.ellipsis, // Truncate with ...
                     ),
-                    reusableText(
+                    ReusableText(
                       text: widget.category,
                       style: appstyleWithHeight(
                         18,
@@ -122,24 +130,34 @@ class _ProductCState extends State<ProductC> {
                         FontWeight.bold,
                         1.5,
                       ),
+                      maxLines: 1, // Limit to 1 line
+                      overflow: TextOverflow.ellipsis, // Truncate with ...
                     ),
                   ],
                 ),
               ),
+              // Price and Color Selector Section
               Padding(
-                padding: EdgeInsets.only(left: 8.w, right: 8.h),
+                padding: EdgeInsets.only(
+                  left: 8.w,
+                  right: 8.w,
+                ), // Corrected to .w
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       widget.price,
                       style: appstyle(30, Colors.black, FontWeight.w600),
+                      maxLines: 1, // Ensure single line
+                      overflow: TextOverflow.ellipsis, // Truncate if needed
                     ),
                     Row(
                       children: [
-                        reusableText(
+                        ReusableText(
                           text: "Colors",
                           style: appstyle(18, Colors.grey, FontWeight.w500),
+                          maxLines: 1, // Ensure single line
+                          overflow: TextOverflow.ellipsis, // Truncate if needed
                         ),
                         SizedBox(width: 5.w),
                         GestureDetector(
@@ -149,16 +167,13 @@ class _ProductCState extends State<ProductC> {
                             });
                           },
                           child: Container(
-                            width: 20.w, // Adjust size for a smaller circle
+                            width: 20.w,
                             height: 20.h,
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle, // Makes it a circle
+                              shape: BoxShape.circle,
                               color:
                                   selected ? Colors.grey : Colors.grey.shade300,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1,
-                              ), // Optional border
+                              border: Border.all(color: Colors.black, width: 1),
                             ),
                           ),
                         ),

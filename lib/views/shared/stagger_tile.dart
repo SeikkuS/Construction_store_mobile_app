@@ -51,7 +51,7 @@ class _StaggerTileState extends State<StaggerTile> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  reusableText(
+                  ReusableText(
                     text: widget.name,
                     style: appstyleWithHeight(
                       20,
@@ -61,7 +61,7 @@ class _StaggerTileState extends State<StaggerTile> {
                     ),
                   ),
                   SizedBox(height: 10.h),
-                  reusableText(
+                  ReusableText(
                     text: widget.price,
                     style: appstyleWithHeight(
                       20,

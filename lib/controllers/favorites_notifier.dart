@@ -1,70 +1,114 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FavoritesNotifier extends ChangeNotifier {
-  final _favBox = Hive.box('fav_box');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> _favorites = [];
+  List<String> _ids = [];
 
-  List<dynamic> _ids = [];
-  List<dynamic> _favorites = [];
-  List<dynamic> _fav = [];
+  List<String> get ids => _ids;
+  List<Map<String, dynamic>> get favorites => _favorites;
 
-  List<dynamic> get ids => _ids;
-  List<dynamic> get favorites => _favorites;
-  List<dynamic> get fav => _fav;
-
-  set ids(List<dynamic> newIds) {
+  set ids(List<String> newIds) {
     _ids = newIds;
     notifyListeners();
   }
 
-  set favorites(List<dynamic> newFav) {
-    _favorites = newFav;
+  set favorites(List<Map<String, dynamic>> newFavorites) {
+    _favorites = newFavorites;
     notifyListeners();
   }
 
-  set fav(List<dynamic> newFav) {
-    _fav = newFav;
-    notifyListeners();
+  // Fetch favorites list from Firestore
+  Future<void> getFavorites() async {
+    try {
+      QuerySnapshot favoritesSnapshot =
+          await _firestore.collection('favorites').get();
+
+      // Debugging: check the snapshot length
+      print("Fetched favorites: ${favoritesSnapshot.docs.length} items");
+
+      // Populate the favorites list with detailed data from Firestore
+      _favorites =
+          favoritesSnapshot.docs.map((doc) {
+            return {
+              "key": doc.id, // Firestore doc ID as key
+              "id": doc['id'] ?? "",
+              "name": doc['name'] ?? "",
+              "price": doc['price'] ?? 0.0,
+              "image": doc['image'] ?? "", // Ensure image URL or asset is valid
+              "category": doc['category'] ?? "",
+            };
+          }).toList();
+
+      // Debugging: check the populated _favorites
+      print("Favorites after mapping: $_favorites");
+
+      // Update the list of IDs as well
+      _ids = _favorites.map((item) => item['id'] as String).toList();
+
+      // Notify listeners to update the UI
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching favorites: $e');
+    }
   }
 
-  getFavorites() {
-    final favData =
-        _favBox.keys.map((key) {
-          final item = _favBox.get(key);
+  // Delete a favorite item from Firestore
+  Future<void> deleteFav(String docId) async {
+    try {
+      // Deleting the favorite from Firestore using the document ID
+      await _firestore.collection('favorites').doc(docId).delete();
 
-          return {"key": key, "id": item['id']};
-        }).toList();
+      // Remove the deleted item from the local list
+      _favorites.removeWhere((item) => item['key'] == docId);
 
-    _favorites = favData;
-    _ids = _favorites.map((item) => item['id']).toList();
+      // Notify listeners to update the UI
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting favorite: $e');
+    }
   }
 
-  getAllData() {
-    final favData =
-        _favBox.keys.map((key) {
-          final item = _favBox.get(key);
-
-          return {
-            "key": key,
-            "id": item['id'],
-            "name": item['name'],
-            "price": item['price'],
-            "image": item['image'],
-            "category": item['category'],
-          };
-        }).toList();
-    _fav = favData.reversed.toList();
-  }
-
-  Future<void> deleteFav(int key) async {
-    await _favBox.delete(key);
-  }
-
+  // Create or add a favorite item to Firestore
   Future<void> createFav(Map<String, dynamic> addFav) async {
-    bool exists = _favBox.values.any((item) => item['id'] == addFav['id']);
+    try {
+      bool exists = _favorites.any((item) => item['id'] == addFav['id']);
+      if (!exists) {
+        DocumentSnapshot productSnapshot =
+            await _firestore.collection('products').doc(addFav['id']).get();
 
-    if (!exists) {
-      await _favBox.add(addFav);
+        if (productSnapshot.exists) {
+          var productData = productSnapshot.data() as Map<String, dynamic>;
+
+          DocumentReference
+          newFav = await _firestore.collection('favorites').add({
+            'id': addFav['id'],
+            'name': productData['name'],
+            'price': productData['price'],
+            'image':
+                productData['image_url'], // Use 'image_url' instead of 'image'
+            'category': productData['category'],
+          });
+
+          _favorites.add({
+            'key': newFav.id,
+            'id': addFav['id'],
+            'name': productData['name'],
+            'price': productData['price'],
+            'image':
+                productData['image_url'], // Use 'image_url' instead of 'image'
+            'category': productData['category'],
+          });
+
+          _ids.add(addFav['id']);
+          notifyListeners();
+        } else {
+          print('Product not found in the products collection');
+        }
+      }
+    } catch (e) {
+      print('Error creating favorite: $e');
     }
   }
 }
