@@ -31,6 +31,27 @@
 
   <title>shope_collection_app</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGKGZBuPl1yyBmuERlKJq5dGTKbof-FO8",
+      authDomain: "construction-store-mobile-app.firebaseapp.com",
+      projectId: "construction-store-mobile-app",
+      storageBucket: "construction-store-mobile-app.appspot.com",
+      messagingSenderId: "1099117948271",
+      appId: "1:1099117948271:web:8c934e94e2a12a115bcc9a"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

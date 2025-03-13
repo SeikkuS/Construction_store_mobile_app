@@ -31,20 +31,6 @@ class _ProductCState extends State<ProductC> {
   bool selected = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<FavoritesNotifier>(context, listen: false).getFavorites();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FavoritesNotifier>(context, listen: false).getFavorites();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
 
@@ -81,53 +67,59 @@ class _ProductCState extends State<ProductC> {
                     ),
                   ),
                   Positioned(
-                    right: 10.w,
-                    top: 10.h,
-                    child: GestureDetector(
-                      onTap: () async {
-                        final scaffoldMessenger = ScaffoldMessenger.of(context);
-                        if (favoritesNotifier.ids.contains(widget.id)) {
-                          // If the product is already favorited, navigate to the Favorites Page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Favorites(),
-                            ),
-                          ).then((_) {
-                            if (mounted) setState(() {});
-                          });
-                        } else {
-                          // If not favorited, add it to favorites
-                          await favoritesNotifier.createFav({
-                            "id": widget.id,
-                            "name": widget.name,
-                            "price": widget.price,
-                            "category": widget.category,
-                            "image": widget.image,
-                          });
-
-                          // Ensure widget updates after adding favorite
-                          if (mounted) {
-                            setState(() {});
-
-                            // Show a notification/snackbar
-                            scaffoldMessenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "${widget.name} added to favorites!",
-                                ),
-                                duration: Duration(seconds: 2),
-                              ),
+                    right: 10, // Adjust positioning as needed
+                    top: 10,
+                    child: Consumer<FavoritesNotifier>(
+                      builder: (context, favoritesNotifier, child) {
+                        bool isFavorited = favoritesNotifier.ids.contains(
+                          widget.id,
+                        );
+                        return GestureDetector(
+                          onTap: () async {
+                            final scaffoldMessenger = ScaffoldMessenger.of(
+                              context,
                             );
-                          }
-                        }
+                            if (isFavorited) {
+                              // If favorited, go to FavoritesPage
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Favorites(),
+                                ),
+                              ).then((_) {
+                                // Refresh state when returning from FavoritesPage
+                                if (mounted) setState(() {});
+                              });
+                            } else {
+                              // If not favorited, add to favorites
+                              await favoritesNotifier.createFav({
+                                "id": widget.id,
+                                "name": widget.name,
+                                "price": widget.price,
+                                "category": widget.category,
+                                "image": widget.image,
+                              });
+                              if (mounted) {
+                                setState(() {});
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "${widget.name} added to favorites!",
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: Icon(
+                            isFavorited
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: Colors.black,
+                          ),
+                        );
                       },
-                      child: Icon(
-                        favoritesNotifier.ids.contains(widget.id)
-                            ? Ionicons.heart
-                            : Ionicons.heart_outline,
-                        color: Colors.black,
-                      ),
                     ),
                   ),
                 ],
@@ -146,8 +138,8 @@ class _ProductCState extends State<ProductC> {
                         FontWeight.bold,
                         1.1,
                       ),
-                      maxLines: 2, // Limit to 2 lines
-                      overflow: TextOverflow.ellipsis, // Truncate with ...
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     ReusableText(
                       text: widget.category,
@@ -157,34 +149,31 @@ class _ProductCState extends State<ProductC> {
                         FontWeight.bold,
                         1.5,
                       ),
-                      maxLines: 1, // Limit to 1 line
-                      overflow: TextOverflow.ellipsis, // Truncate with ...
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
               // Price and Color Selector Section
               Padding(
-                padding: EdgeInsets.only(
-                  left: 8.w,
-                  right: 8.w,
-                ), // Corrected to .w
+                padding: EdgeInsets.only(left: 8.w, right: 8.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       widget.price,
                       style: appstyle(30, Colors.black, FontWeight.w600),
-                      maxLines: 1, // Ensure single line
-                      overflow: TextOverflow.ellipsis, // Truncate if needed
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Row(
                       children: [
                         ReusableText(
                           text: "Colors",
                           style: appstyle(18, Colors.grey, FontWeight.w500),
-                          maxLines: 1, // Ensure single line
-                          overflow: TextOverflow.ellipsis, // Truncate if needed
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(width: 5.w),
                         GestureDetector(

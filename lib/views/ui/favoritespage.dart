@@ -10,26 +10,16 @@ class Favorites extends StatefulWidget {
 
 class _FavoritesState extends State<Favorites> {
   @override
-  void initState() {
-    super.initState();
-    final favoritesNotifier = Provider.of<FavoritesNotifier>(
-      context,
-      listen: false,
-    );
-    favoritesNotifier.getFavorites(); // Fetch favorites from Firestore
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
-    final favorites = favoritesNotifier.favorites;
-
     return Scaffold(
       backgroundColor: const Color(0xFFE2E2E2),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child:
-            favorites.isEmpty
+        child: Consumer<FavoritesNotifier>(
+          builder: (context, favoritesNotifier, child) {
+            final favorites = favoritesNotifier.favorites;
+
+            return favorites.isEmpty
                 ? Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +194,9 @@ class _FavoritesState extends State<Favorites> {
                       ],
                     ),
                   ],
-                ),
+                );
+          },
+        ),
       ),
     );
   }

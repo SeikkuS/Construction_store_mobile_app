@@ -6,7 +6,9 @@ import 'package:construction_store_mobile_app/controllers/favorites_notifier.dar
 import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
 import 'package:construction_store_mobile_app/controllers/product_provider.dart';
 import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
+import 'package:construction_store_mobile_app/views/ui/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -29,7 +31,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -43,8 +44,41 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.deepPurple,
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           ),
-          home: MainScreen(),
+          home: const AuthWrapper(),
         );
+      },
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final user = snapshot.data;
+          if (user != null) {
+            // Set userId in FavoritesNotifier and CartProvider
+            final favoritesNotifier = Provider.of<FavoritesNotifier>(
+              context,
+              listen: false,
+            );
+            final cartProvider = Provider.of<CartProvider>(
+              context,
+              listen: false,
+            );
+            favoritesNotifier.setUserId(user.uid);
+            cartProvider.setUserId(user.uid);
+            return MainScreen();
+          } else {
+            return LogInPage();
+          }
+        }
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }

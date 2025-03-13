@@ -5,6 +5,7 @@ class FavoritesNotifier extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> _favorites = [];
   List<String> _ids = [];
+  String? userId; // Store the user's ID (e.g., from authentication)
 
   List<String> get ids => _ids;
   List<Map<String, dynamic>> get favorites => _favorites;
@@ -19,16 +20,27 @@ class FavoritesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fetch favorites list from Firestore
+  // Set the user ID and fetch favorites immediately
+  void setUserId(String userId) {
+    this.userId = userId;
+    getFavorites(); // Fetch favorites to sync local state
+  }
+
+  // Fetch favorites list from Firestore for the authenticated user
   Future<void> getFavorites() async {
     try {
+      if (userId == null) {
+        debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
+
       QuerySnapshot favoritesSnapshot =
-          await _firestore.collection('favorites').get();
+          await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('favorites')
+              .get();
 
-      // Debugging: check the snapshot length
-      // print("Fetched favorites: ${favoritesSnapshot.docs.length} items");
-
-      // Populate the favorites list with detailed data from Firestore
       _favorites =
           favoritesSnapshot.docs.map((doc) {
             return {
@@ -36,43 +48,48 @@ class FavoritesNotifier extends ChangeNotifier {
               "id": doc['id'] ?? "",
               "name": doc['name'] ?? "",
               "price": doc['price'] ?? 0.0,
-              "image": doc['image'] ?? "", // Ensure image URL or asset is valid
+              "image": doc['image'] ?? "",
               "category": doc['category'] ?? "",
             };
           }).toList();
 
-      // Debugging: check the populated _favorites
-      // print("Favorites after mapping: $_favorites");
-
-      // Update the list of IDs as well
       _ids = _favorites.map((item) => item['id'] as String).toList();
-
-      // Notify listeners to update the UI
       notifyListeners();
     } catch (e) {
-      print('Error fetching favorites: $e');
+      debugPrint('FavoritesNotifier: Error fetching favorites: $e');
     }
   }
 
   // Delete a favorite item from Firestore
   Future<void> deleteFav(String docId) async {
     try {
-      // Deleting the favorite from Firestore using the document ID
-      await _firestore.collection('favorites').doc(docId).delete();
+      if (userId == null) {
+        debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
 
-      // Remove the deleted item from the local list
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('favorites')
+          .doc(docId)
+          .delete();
+
       _favorites.removeWhere((item) => item['key'] == docId);
-
-      // Notify listeners to update the UI
       notifyListeners();
     } catch (e) {
-      print('Error deleting favorite: $e');
+      debugPrint('FavoritesNotifier: Error deleting favorite: $e');
     }
   }
 
-  // Create or add a favorite item to Firestore
+  // Create or add a favorite item to Firestore for the user
   Future<void> createFav(Map<String, dynamic> addFav) async {
     try {
+      if (userId == null) {
+        debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
+
       bool exists = _favorites.any((item) => item['id'] == addFav['id']);
       if (!exists) {
         DocumentSnapshot productSnapshot =
@@ -81,34 +98,37 @@ class FavoritesNotifier extends ChangeNotifier {
         if (productSnapshot.exists) {
           var productData = productSnapshot.data() as Map<String, dynamic>;
 
-          DocumentReference
-          newFav = await _firestore.collection('favorites').add({
-            'id': addFav['id'],
-            'name': productData['name'],
-            'price': productData['price'],
-            'image':
-                productData['image_url'], // Use 'image_url' instead of 'image'
-            'category': productData['category'],
-          });
+          DocumentReference newFav = await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('favorites')
+              .add({
+                'id': addFav['id'],
+                'name': productData['name'],
+                'price': productData['price'],
+                'image': productData['image_url'],
+                'category': productData['category'],
+              });
 
           _favorites.add({
             'key': newFav.id,
             'id': addFav['id'],
             'name': productData['name'],
             'price': productData['price'],
-            'image':
-                productData['image_url'], // Use 'image_url' instead of 'image'
+            'image': productData['image_url'],
             'category': productData['category'],
           });
 
           _ids.add(addFav['id']);
           notifyListeners();
         } else {
-          print('Product not found in the products collection');
+          debugPrint(
+            'FavoritesNotifier: Product not found in products collection',
+          );
         }
       }
     } catch (e) {
-      print('Error creating favorite: $e');
+      debugPrint('FavoritesNotifier: Error creating favorite: $e');
     }
   }
 }
