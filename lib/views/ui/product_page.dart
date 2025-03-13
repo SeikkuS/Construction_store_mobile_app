@@ -19,16 +19,16 @@ class _ProductPageState extends State<ProductPage> {
     // Load the product when the page is initialized
     var productNotifier = Provider.of<ProductNotifier>(context, listen: false);
     productNotifier.getProductById(widget.id); // Use the new method
+
+    var favoritesNotifier = Provider.of<FavoritesNotifier>(
+      context,
+      listen: false,
+    );
+    favoritesNotifier.getFavorites();
   }
 
   @override
   Widget build(BuildContext context) {
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(
-      context,
-      listen: true,
-    );
-    favoritesNotifier.getFavorites();
-
     var productNotifier = Provider.of<ProductNotifier>(context);
 
     return Scaffold(
@@ -56,6 +56,7 @@ class _ProductPageState extends State<ProductPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Close Button
                             GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
@@ -65,12 +66,75 @@ class _ProductPageState extends State<ProductPage> {
                                 color: Colors.black,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: null,
-                              child: const Icon(
-                                Ionicons.ellipsis_horizontal,
-                                color: Colors.black,
-                              ),
+
+                            // Icons (Favorites + More Options)
+                            Row(
+                              children: [
+                                // Favorite Icon
+                                Consumer<FavoritesNotifier>(
+                                  builder: (context, favoritesNotifier, child) {
+                                    bool isFavorited = favoritesNotifier.ids
+                                        .contains(widget.id);
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        final scaffoldMessenger =
+                                            ScaffoldMessenger.of(context);
+
+                                        if (isFavorited) {
+                                          // Navigate to favorites when already favorited
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Favorites(),
+                                            ),
+                                          ).then((_) {
+                                            // Refresh state when returning from favorites
+                                            if (mounted) setState(() {});
+                                          });
+                                        } else {
+                                          // Add to favorites
+                                          await favoritesNotifier.createFav({
+                                            "id": product!.id,
+                                            "name": product.name,
+                                            "price": product.price,
+                                            "category": product.category,
+                                            "image": product.imageUrl,
+                                          });
+
+                                          if (mounted) {
+                                            setState(() {});
+                                            scaffoldMessenger.showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  "${product.name} added to favorites!",
+                                                ),
+                                                duration: Duration(seconds: 2),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: Icon(
+                                        isFavorited
+                                            ? Ionicons.heart
+                                            : Ionicons.heart_outline,
+                                        color: Colors.black,
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                                SizedBox(width: 20.w),
+
+                                // Triple Dot Icon
+                                GestureDetector(
+                                  onTap: null,
+                                  child: const Icon(
+                                    Ionicons.ellipsis_horizontal,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -84,12 +148,13 @@ class _ProductPageState extends State<ProductPage> {
                         titlePadding: EdgeInsets.zero,
                         background: SizedBox.expand(
                           child: Image.asset(
-                            product!.imageUrl, // Only one image
+                            product!.imageUrl,
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                     ),
+
                     // SliverToBoxAdapter for product details.
                     SliverToBoxAdapter(
                       child: Container(
@@ -171,25 +236,23 @@ class _ProductPageState extends State<ProductPage> {
                                 SizedBox(height: 10.h),
                                 SizedBox(
                                   width: 300.w,
-                                  child: Flexible(
-                                    child: Text(
-                                      product.name,
-                                      style: appstyle(
-                                        26,
-                                        Colors.black,
-                                        FontWeight.w700,
-                                      ),
-                                      overflow:
-                                          TextOverflow
-                                              .ellipsis, // Optionally truncate overflowed text with an ellipsis
-                                      maxLines:
-                                          2, // Optionally limit the number of lines for the name
+                                  child: ReusableText(
+                                    text: product.name,
+                                    style: appstyle(
+                                      26,
+                                      Colors.black,
+                                      FontWeight.w700,
                                     ),
+                                    overflow:
+                                        TextOverflow
+                                            .ellipsis, // Optionally truncate overflowed text with an ellipsis
+                                    maxLines:
+                                        2, // Optionally limit the number of lines for the name
                                   ),
                                 ),
                                 SizedBox(height: 5.h),
-                                Text(
-                                  product.description,
+                                ReusableText(
+                                  text: product.description,
                                   textAlign: TextAlign.justify,
                                   maxLines: 4,
                                   style: appstyle(

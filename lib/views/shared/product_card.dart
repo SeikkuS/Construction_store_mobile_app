@@ -31,6 +31,12 @@ class _ProductCState extends State<ProductC> {
   bool selected = false;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Provider.of<FavoritesNotifier>(context, listen: false).getFavorites();
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -79,14 +85,19 @@ class _ProductCState extends State<ProductC> {
                     top: 10.h,
                     child: GestureDetector(
                       onTap: () async {
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
                         if (favoritesNotifier.ids.contains(widget.id)) {
+                          // If the product is already favorited, navigate to the Favorites Page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Favorites(),
                             ),
-                          );
+                          ).then((_) {
+                            if (mounted) setState(() {});
+                          });
                         } else {
+                          // If not favorited, add it to favorites
                           await favoritesNotifier.createFav({
                             "id": widget.id,
                             "name": widget.name,
@@ -94,13 +105,29 @@ class _ProductCState extends State<ProductC> {
                             "category": widget.category,
                             "image": widget.image,
                           });
+
+                          // Ensure widget updates after adding favorite
+                          if (mounted) {
+                            setState(() {});
+
+                            // Show a notification/snackbar
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "${widget.name} added to favorites!",
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         }
-                        setState(() {});
                       },
-                      child:
-                          favoritesNotifier.ids.contains(widget.id)
-                              ? const Icon(Ionicons.heart, color: Colors.black)
-                              : const Icon(Ionicons.heart_outline),
+                      child: Icon(
+                        favoritesNotifier.ids.contains(widget.id)
+                            ? Ionicons.heart
+                            : Ionicons.heart_outline,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ],

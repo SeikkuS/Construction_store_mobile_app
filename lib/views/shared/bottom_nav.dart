@@ -1,3 +1,6 @@
+import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
+import 'package:construction_store_mobile_app/views/ui/cartpage.dart';
+import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
@@ -44,21 +47,31 @@ class BottomNavBar extends StatelessWidget {
                   ),
                   BottomNavWidget(
                     onTap: () {
-                      mainScreenNotifier.pageIndex = 2;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Favorites(),
+                        ),
+                      );
                     },
                     icon:
-                        mainScreenNotifier.pageIndex == 2
+                        Provider.of<FavoritesNotifier>(
+                              context,
+                            ).favorites.isNotEmpty
                             ? Ionicons.heart
                             : Ionicons.heart_outline,
                   ),
+
                   BottomNavWidget(
                     onTap: () {
-                      mainScreenNotifier.pageIndex = 3;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartPage(),
+                        ),
+                      );
                     },
-                    icon:
-                        mainScreenNotifier.pageIndex == 3
-                            ? Ionicons.cart
-                            : Ionicons.cart_outline,
+                    icon: Ionicons.cart_outline,
                   ),
                   BottomNavWidget(
                     onTap: () {

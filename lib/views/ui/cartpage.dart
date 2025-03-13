@@ -1,6 +1,5 @@
 import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
 import 'package:construction_store_mobile_app/views/shared/export.dart';
-import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -37,7 +36,7 @@ class _CartPageState extends State<CartPage> {
                     // Simply pop the current screen to go back to the previous screen (MainScreen)
                     Navigator.pop(context); // Return to the MainScreen
                   },
-                  child: Icon(Ionicons.close, color: Colors.black),
+                  child: const Icon(Ionicons.close, color: Colors.black),
                 ),
                 Text(
                   "My Cart",
@@ -68,7 +67,6 @@ class _CartPageState extends State<CartPage> {
                               ],
                             ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(12),
@@ -79,112 +77,140 @@ class _CartPageState extends State<CartPage> {
                                     fit: BoxFit.fill,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 12, left: 20),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Text widget with maxLines and overflow handling to prevent text overflow
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.6, // limit the width of the name
-                                        child: Text(
-                                          data['name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: appstyle(
-                                            16,
-                                            Colors.black,
-                                            FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      // Category text with maxLines and overflow handling
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.6, // limit the width of the category
-                                        child: Text(
-                                          data['category'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: appstyle(
-                                            14,
-                                            Colors.grey,
-                                            FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            data['price'].toString(),
+                                // Adjust the product information column width
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 12, left: 20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Text widget with maxLines and overflow handling to prevent text overflow
+                                        SizedBox(
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.55, // limit the width of the name
+                                          child: Text(
+                                            data['name'],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: appstyle(
-                                              18,
+                                              16,
                                               Colors.black,
+                                              FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        // Category text with maxLines and overflow handling
+                                        SizedBox(
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.55, // limit the width of the category
+                                          child: Text(
+                                            data['category'],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: appstyle(
+                                              14,
+                                              Colors.grey,
                                               FontWeight.w600,
                                             ),
                                           ),
-                                          const SizedBox(width: 40),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ), // Added extra spacing below the price
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(16),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            cartProvider.decrementQty(
-                                              data['key'],
-                                            );
-                                          },
-                                          child: const Icon(
-                                            Ionicons.remove_circle,
-                                            size: 24,
-                                            color: Colors.grey,
-                                          ),
                                         ),
-                                        Text(
-                                          data['qty'].toString(),
-                                          style: appstyle(
-                                            16,
-                                            Colors.black,
-                                            FontWeight.w600,
-                                          ),
+                                        const SizedBox(height: 5),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              data['price'].toString(),
+                                              style: appstyle(
+                                                18,
+                                                Colors.black,
+                                                FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 40),
+                                          ],
                                         ),
-                                        InkWell(
-                                          onTap: () {
-                                            cartProvider.incrementQty(
-                                              data['key'],
-                                            );
-                                          },
-                                          child: const Icon(
-                                            Ionicons.add_circle,
-                                            size: 24,
-                                            color: Colors.black,
-                                          ),
-                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ), // Added extra spacing below the price
                                       ],
                                     ),
+                                  ),
+                                ),
+                                // Adjust the width of the quantity and trash section
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // Quantity section
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(16),
+                                          ),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                cartProvider.decrementQty(
+                                                  data['key'],
+                                                );
+                                              },
+                                              child: const Icon(
+                                                Ionicons.remove_circle,
+                                                size: 24,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            Text(
+                                              data['qty'].toString(),
+                                              style: appstyle(
+                                                16,
+                                                Colors.black,
+                                                FontWeight.w600,
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                cartProvider.incrementQty(
+                                                  data['key'],
+                                                );
+                                              },
+                                              child: const Icon(
+                                                Ionicons.add_circle,
+                                                size: 24,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: 20.w), // space between
+                                      // Trash Icon (Removal button)
+                                      InkWell(
+                                        onTap: () {
+                                          cartProvider.deleteFromCart(
+                                            data['key'],
+                                          );
+                                        },
+                                        child: const Icon(
+                                          Ionicons.trash_bin,
+                                          size: 24,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

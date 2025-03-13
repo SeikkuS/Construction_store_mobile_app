@@ -26,7 +26,7 @@ class FavoritesNotifier extends ChangeNotifier {
           await _firestore.collection('favorites').get();
 
       // Debugging: check the snapshot length
-      print("Fetched favorites: ${favoritesSnapshot.docs.length} items");
+      // print("Fetched favorites: ${favoritesSnapshot.docs.length} items");
 
       // Populate the favorites list with detailed data from Firestore
       _favorites =
@@ -42,7 +42,7 @@ class FavoritesNotifier extends ChangeNotifier {
           }).toList();
 
       // Debugging: check the populated _favorites
-      print("Favorites after mapping: $_favorites");
+      // print("Favorites after mapping: $_favorites");
 
       // Update the list of IDs as well
       _ids = _favorites.map((item) => item['id'] as String).toList();

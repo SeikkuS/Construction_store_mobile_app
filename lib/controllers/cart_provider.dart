@@ -39,7 +39,7 @@ class CartProvider with ChangeNotifier {
   }
 
   // Delete an item from the cart in Firestore
-  Future<void> deleteCart(String key) async {
+  Future<void> deleteFromCart(String key) async {
     try {
       await _firestore.collection('cart').doc(key).delete();
       _cart.removeWhere((item) => item['key'] == key);
