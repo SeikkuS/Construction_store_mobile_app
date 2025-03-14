@@ -10,14 +10,10 @@ import 'package:construction_store_mobile_app/views/ui/product_by_cart.dart';
 import 'package:construction_store_mobile_app/views/ui/product_page.dart';
 
 class HomeWidget extends StatelessWidget {
-  const HomeWidget({
-    super.key,
-    required Future<List<Products>> ruuvit,
-    required this.tabIndex,
-  }) : _ruuvit = ruuvit;
-
-  final Future<List<Products>> _ruuvit;
+  final List<Products> products;
   final int tabIndex;
+
+  const HomeWidget({super.key, required this.products, required this.tabIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -26,48 +22,36 @@ class HomeWidget extends StatelessWidget {
       children: [
         SizedBox(
           height: 325.h,
-          child: FutureBuilder<List<Products>>(
-            future: _ruuvit,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text("Error ${snapshot.error}");
-              } else {
-                final ruuvi = snapshot.data;
-                return ListView.builder(
-                  itemCount: ruuvi!.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    final product = snapshot.data![index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => ProductPage(
-                                  category: product.category,
-                                  id: product.id,
-                                ),
+          child: ListView.builder(
+            itemCount: products.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => ProductPage(
+                            category: product.category,
+                            id: product.id,
                           ),
-                        );
-                      },
-                      child: SizedBox(
-                        width:
-                            253.w, // 225.w (card width) + 8.w (left padding) + 20.w (right padding)
-                        child: ProductC(
-                          price: "${product.price}€",
-                          category: product.category,
-                          id: product.id,
-                          name: product.name,
-                          image: product.imageUrl,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  width:
+                      253.w, // 225.w (card width) + 8.w (left padding) + 20.w (right padding)
+                  child: ProductC(
+                    price: "${product.price}€",
+                    category: product.category,
+                    id: product.id,
+                    name: product.name,
+                    image: product.imageUrl,
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -109,42 +93,29 @@ class HomeWidget extends StatelessWidget {
         ),
         SizedBox(
           height: 99.h,
-          child: FutureBuilder<List<Products>>(
-            future: _ruuvit,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text("Error ${snapshot.error}");
-              } else {
-                final ruuvi = snapshot.data;
-                return ListView.builder(
-                  itemCount: ruuvi!.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    final product = snapshot.data![index];
-                    return Padding(
-                      padding: EdgeInsets.all(8.0.h),
-                      child: NewProducts(
-                        onTap: () {
-                          // No need to handle sizes anymore
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ProductPage(
-                                    category: product.category,
-                                    id: product.id,
-                                  ),
+          child: ListView.builder(
+            itemCount: products.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return Padding(
+                padding: EdgeInsets.all(8.0.h),
+                child: NewProducts(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ProductPage(
+                              category: product.category,
+                              id: product.id,
                             ),
-                          );
-                        },
-                        imagePath: product.imageUrl, // Only one image
                       ),
                     );
                   },
-                );
-              }
+                  imagePath: product.imageUrl,
+                ),
+              );
             },
           ),
         ),

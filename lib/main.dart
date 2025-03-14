@@ -62,17 +62,19 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           final user = snapshot.data;
           if (user != null) {
-            // Set userId in FavoritesNotifier and CartProvider
-            final favoritesNotifier = Provider.of<FavoritesNotifier>(
-              context,
-              listen: false,
-            );
-            final cartProvider = Provider.of<CartProvider>(
-              context,
-              listen: false,
-            );
-            favoritesNotifier.setUserId(user.uid);
-            cartProvider.setUserId(user.uid);
+            // Defer setting userId until after the build phase
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final favoritesNotifier = Provider.of<FavoritesNotifier>(
+                context,
+                listen: false,
+              );
+              final cartProvider = Provider.of<CartProvider>(
+                context,
+                listen: false,
+              );
+              favoritesNotifier.setUserId(user.uid);
+              cartProvider.setUserId(user.uid);
+            });
             return MainScreen();
           } else {
             return LogInPage();

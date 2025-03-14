@@ -4,76 +4,54 @@ import 'package:construction_store_mobile_app/services/helper.dart';
 
 class ProductNotifier extends ChangeNotifier {
   int _activepage = 0;
+  List<Products> _allProducts = [];
+  bool _isLoading = false;
+  Future<Products>? _product; // For single product fetching
 
-  List<dynamic> _productSizes = [];
-  List<String> _sizes = [];
-
+  // Getters
   int get activepage => _activepage;
+  List<Products> get allProducts => _allProducts;
+  bool get isLoading => _isLoading;
+  Future<Products>? get product => _product;
 
+  // Setter for active page
   set activePage(int newIndex) {
     _activepage = newIndex;
     notifyListeners();
   }
 
-  List<dynamic> get productSizes => _productSizes;
+  // Fetch all products across categories
+  Future<void> fetchAllProducts() async {
+    if (_allProducts.isNotEmpty) return; // Skip if already fetched
 
-  set productSizes(List<dynamic> newSizes) {
-    _productSizes = newSizes;
+    _isLoading = true;
     notifyListeners();
-  }
 
-  void toggleCheck(int index) {
-    for (int i = 0; i < _productSizes.length; i++) {
-      if (i == index) {
-        _productSizes[i]['isSelected'] = !_productSizes[i]['isSelected'];
-      }
+    try {
+      final ruuvitList = await Helper().getRuuvit();
+      final pultitList = await Helper().getPultit();
+      final mutteritList = await Helper().getMutterit();
+      _allProducts = [...ruuvitList, ...pultitList, ...mutteritList];
+      print("Fetched ${_allProducts.length} products");
+    } catch (e) {
+      print("Error fetching products: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  List<String> get sizes => _sizes;
-
-  set sizes(List<String> newSizes) {
-    _sizes = newSizes;
-    notifyListeners();
-  }
-
-  late Future<List<Products>> ruuvit;
-  late Future<List<Products>> pultit;
-  late Future<List<Products>> mutterit;
-  late Future<Products> product;
-
-  // Fetch products by category (for browsing)
-  void getRuuvit() {
-    ruuvit = Helper().getRuuvit();
-  }
-
-  void getPultit() {
-    pultit = Helper().getPultit();
-  }
-
-  void getMutterit() {
-    mutterit = Helper().getMutterit();
-  }
+  // Category-specific getters
+  List<Products> get ruuvitList =>
+      _allProducts.where((product) => product.category == "Ruuvit").toList();
+  List<Products> get pultitList =>
+      _allProducts.where((product) => product.category == "Pultit").toList();
+  List<Products> get mutteritList =>
+      _allProducts.where((product) => product.category == "Mutterit").toList();
 
   // Fetch a single product by ID (for the product detail page)
-  void getProductById(String id) {
-    product = Helper().getProductById(id);
-  }
-
-  void toggleSizeSelection(int index) {
-    var selectedSize = _productSizes[index];
-
-    // Toggle the isSelected state
-    selectedSize['isSelected'] = !selectedSize['isSelected'];
-
-    // If the size is selected, add it to the _sizes list, otherwise remove it.
-    if (selectedSize['isSelected']) {
-      _sizes.add(selectedSize['size']);
-    } else {
-      _sizes.remove(selectedSize['size']);
-    }
-
+  Future<void> getProductById(String id) async {
+    _product = Helper().getProductById(id);
     notifyListeners();
   }
 }

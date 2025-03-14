@@ -1,3 +1,4 @@
+import 'package:construction_store_mobile_app/views/shared/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ionicons/ionicons.dart';
@@ -6,6 +7,7 @@ import 'package:construction_store_mobile_app/controllers/favorites_notifier.dar
 import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
 import 'package:construction_store_mobile_app/views/shared/reusable_text.dart';
 import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add this import
 
 class ProductC extends StatefulWidget {
   const ProductC({
@@ -55,74 +57,83 @@ class _ProductCState extends State<ProductC> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Section
-              Stack(
-                children: [
-                  Container(
-                    height: 186.h,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(widget.image),
-                        fit: BoxFit.cover,
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 186.h,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(widget.image),
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 10, // Adjust positioning as needed
-                    top: 10,
-                    child: Consumer<FavoritesNotifier>(
-                      builder: (context, favoritesNotifier, child) {
-                        bool isFavorited = favoritesNotifier.ids.contains(
-                          widget.id,
-                        );
-                        return GestureDetector(
-                          onTap: () async {
-                            final scaffoldMessenger = ScaffoldMessenger.of(
-                              context,
-                            );
-                            if (isFavorited) {
-                              // If favorited, go to FavoritesPage
-                              Navigator.push(
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: Consumer<FavoritesNotifier>(
+                        builder: (context, favoritesNotifier, child) {
+                          // Check if the user is anonymous
+                          bool isAnonymous =
+                              FirebaseAuth.instance.currentUser?.isAnonymous ??
+                              true;
+                          // Only consider item favorited if user is not anonymous
+                          bool isFavorited =
+                              !isAnonymous &&
+                              favoritesNotifier.ids.contains(widget.id);
+                          return GestureDetector(
+                            onTap: () async {
+                              final scaffoldMessenger = ScaffoldMessenger.of(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => Favorites(),
-                                ),
-                              ).then((_) {
-                                // Refresh state when returning from FavoritesPage
-                                if (mounted) setState(() {});
-                              });
-                            } else {
-                              // If not favorited, add to favorites
-                              await favoritesNotifier.createFav({
-                                "id": widget.id,
-                                "name": widget.name,
-                                "price": widget.price,
-                                "category": widget.category,
-                                "image": widget.image,
-                              });
-                              if (mounted) {
-                                setState(() {});
+                              );
+                              if (isAnonymous) {
+                                // Prompt anonymous users to log in
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      "${widget.name} added to favorites!",
+                                      "Please log in to add to favorites",
                                     ),
-                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
+                              } else {
+                                if (isFavorited) {
+                                  // Navigate to favorites page if already favorited
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Favorites(),
+                                    ),
+                                  );
+                                } else {
+                                  // Add to favorites if not favorited
+                                  await favoritesNotifier.createFav({
+                                    "id": widget.id,
+                                    "name": widget.name,
+                                    "price": widget.price,
+                                    "category": widget.category,
+                                    "image": widget.image,
+                                  });
+                                  scaffoldMessenger.showSnackBar(
+                                    customSnackBar(
+                                      "${widget.name} added to favorites!",
+                                    ),
+                                  );
+                                }
                               }
-                            }
-                          },
-                          child: Icon(
-                            isFavorited
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
+                            },
+                            child: Icon(
+                              isFavorited
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               // Text Section (Name and Category)
               Padding(

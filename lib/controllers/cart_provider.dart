@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CartProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _cart = [];
-  String? userId; // Store the user's ID (e.g., from authentication)
+  String? userId;
 
   List<Map<String, dynamic>> get cart => _cart;
 
@@ -13,17 +15,23 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Set the user ID and fetch cart immediately
   void setUserId(String userId) {
     this.userId = userId;
-    getCart(); // Fetch cart to sync local state
+    // Delay getCart() until after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getCart();
+    });
   }
 
-  // Fetch the cart items from Firestore for the authenticated user
   Future<void> getCart() async {
     try {
       if (userId == null) {
         debugPrint('CartProvider: User ID is not set');
+        return;
+      }
+
+      if (_auth.currentUser?.isAnonymous == true) {
+        // For anonymous users, rely on local state only (no fetch from Firestore)
         return;
       }
 
@@ -37,7 +45,7 @@ class CartProvider with ChangeNotifier {
       _cart =
           cartSnapshot.docs.map((doc) {
             return {
-              "key": doc.id, // Firestore doc ID as key
+              "key": doc.id,
               "id": doc['id'],
               "category": doc['category'],
               "name": doc['name'],
@@ -54,11 +62,16 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Delete an item from the cart in Firestore
   Future<void> deleteFromCart(String key) async {
     try {
       if (userId == null) {
         debugPrint('CartProvider: User ID is not set');
+        return;
+      }
+
+      if (_auth.currentUser?.isAnonymous == true) {
+        _cart.removeWhere((item) => item['key'] == key);
+        notifyListeners();
         return;
       }
 
@@ -76,7 +89,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Add a new item to the cart in Firestore for the user
   Future<void> addToCart(Map<String, dynamic> cartItem) async {
     try {
       if (userId == null) {
@@ -84,73 +96,64 @@ class CartProvider with ChangeNotifier {
         return;
       }
 
-      // Check if the item already exists in the cart
       var existingItemIndex = _cart.indexWhere(
         (item) => item['id'] == cartItem['id'],
       );
       if (existingItemIndex != -1) {
-        // If it exists, increment the quantity
         await incrementQty(_cart[existingItemIndex]['key']);
       } else {
-        // If it doesn’t exist, add a new item
-        DocumentReference newCartItem = await _firestore
-            .collection('users')
-            .doc(userId)
-            .collection('cart')
-            .add({
-              "category": cartItem['category'],
-              "id": cartItem['id'],
-              "image": cartItem['image'],
-              "name": cartItem['name'],
-              "price": cartItem['price'],
-              "qty": cartItem['qty'],
-            });
+        if (_auth.currentUser?.isAnonymous == true) {
+          _cart.add({
+            "key": UniqueKey().toString(), // Temporary local key
+            "id": cartItem['id'],
+            "category": cartItem['category'],
+            "name": cartItem['name'],
+            "price": cartItem['price'],
+            "qty": cartItem['qty'],
+            "image": cartItem['image'],
+          });
+          notifyListeners();
+        } else {
+          DocumentReference newCartItem = await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('cart')
+              .add({
+                "category": cartItem['category'],
+                "id": cartItem['id'],
+                "image": cartItem['image'],
+                "name": cartItem['name'],
+                "price": cartItem['price'],
+                "qty": cartItem['qty'],
+              });
 
-        _cart.add({
-          "key": newCartItem.id,
-          "id": cartItem['id'],
-          "category": cartItem['category'],
-          "name": cartItem['name'],
-          "price": cartItem['price'],
-          "qty": cartItem['qty'],
-          "image": cartItem['image'],
-        });
-        notifyListeners();
+          _cart.add({
+            "key": newCartItem.id,
+            "id": cartItem['id'],
+            "category": cartItem['category'],
+            "name": cartItem['name'],
+            "price": cartItem['price'],
+            "qty": cartItem['qty'],
+            "image": cartItem['image'],
+          });
+          notifyListeners();
+        }
       }
     } catch (e) {
       debugPrint('CartProvider: Error adding to cart: $e');
     }
   }
 
-  // Increment quantity for an item in the cart
   Future<void> incrementQty(String key) async {
     try {
       var itemIndex = _cart.indexWhere((item) => item['key'] == key);
       if (itemIndex != -1) {
         var updatedItem = Map<String, dynamic>.from(_cart[itemIndex]);
         updatedItem['qty']++;
-        await _firestore
-            .collection('users')
-            .doc(userId)
-            .collection('cart')
-            .doc(key)
-            .update({'qty': updatedItem['qty']});
-        _cart[itemIndex] = updatedItem;
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('CartProvider: Error incrementing quantity: $e');
-    }
-  }
-
-  // Decrement quantity for an item in the cart
-  Future<void> decrementQty(String key) async {
-    try {
-      var itemIndex = _cart.indexWhere((item) => item['key'] == key);
-      if (itemIndex != -1) {
-        var updatedItem = Map<String, dynamic>.from(_cart[itemIndex]);
-        if (updatedItem['qty'] > 1) {
-          updatedItem['qty']--;
+        if (_auth.currentUser?.isAnonymous == true) {
+          _cart[itemIndex] = updatedItem;
+          notifyListeners();
+        } else {
           await _firestore
               .collection('users')
               .doc(userId)
@@ -159,8 +162,34 @@ class CartProvider with ChangeNotifier {
               .update({'qty': updatedItem['qty']});
           _cart[itemIndex] = updatedItem;
           notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('CartProvider: Error incrementing quantity: $e');
+    }
+  }
+
+  Future<void> decrementQty(String key) async {
+    try {
+      var itemIndex = _cart.indexWhere((item) => item['key'] == key);
+      if (itemIndex != -1) {
+        var updatedItem = Map<String, dynamic>.from(_cart[itemIndex]);
+        if (updatedItem['qty'] > 1) {
+          updatedItem['qty']--;
+          if (_auth.currentUser?.isAnonymous == true) {
+            _cart[itemIndex] = updatedItem;
+            notifyListeners();
+          } else {
+            await _firestore
+                .collection('users')
+                .doc(userId)
+                .collection('cart')
+                .doc(key)
+                .update({'qty': updatedItem['qty']});
+            _cart[itemIndex] = updatedItem;
+            notifyListeners();
+          }
         } else {
-          // Remove the item if quantity would drop to 0
           await deleteFromCart(key);
         }
       }

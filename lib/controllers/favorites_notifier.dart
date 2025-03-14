@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoritesNotifier extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _favorites = [];
   List<String> _ids = [];
-  String? userId; // Store the user's ID (e.g., from authentication)
+  String? userId;
 
   List<String> get ids => _ids;
   List<Map<String, dynamic>> get favorites => _favorites;
@@ -20,17 +22,25 @@ class FavoritesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Set the user ID and fetch favorites immediately
   void setUserId(String userId) {
     this.userId = userId;
-    getFavorites(); // Fetch favorites to sync local state
+    // Delay getFavorites() until after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getFavorites();
+    });
   }
 
-  // Fetch favorites list from Firestore for the authenticated user
   Future<void> getFavorites() async {
     try {
       if (userId == null) {
         debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
+
+      if (_auth.currentUser?.isAnonymous == true) {
+        _favorites = [];
+        _ids = [];
+        notifyListeners();
         return;
       }
 
@@ -44,7 +54,7 @@ class FavoritesNotifier extends ChangeNotifier {
       _favorites =
           favoritesSnapshot.docs.map((doc) {
             return {
-              "key": doc.id, // Firestore doc ID as key
+              "key": doc.id,
               "id": doc['id'] ?? "",
               "name": doc['name'] ?? "",
               "price": doc['price'] ?? 0.0,
@@ -60,11 +70,17 @@ class FavoritesNotifier extends ChangeNotifier {
     }
   }
 
-  // Delete a favorite item from Firestore
   Future<void> deleteFav(String docId) async {
     try {
       if (userId == null) {
         debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
+
+      if (_auth.currentUser?.isAnonymous == true) {
+        debugPrint(
+          'FavoritesNotifier: Anonymous users cannot delete favorites',
+        );
         return;
       }
 
@@ -76,17 +92,22 @@ class FavoritesNotifier extends ChangeNotifier {
           .delete();
 
       _favorites.removeWhere((item) => item['key'] == docId);
+      _ids = _favorites.map((item) => item['id'] as String).toList();
       notifyListeners();
     } catch (e) {
       debugPrint('FavoritesNotifier: Error deleting favorite: $e');
     }
   }
 
-  // Create or add a favorite item to Firestore for the user
   Future<void> createFav(Map<String, dynamic> addFav) async {
     try {
       if (userId == null) {
         debugPrint('FavoritesNotifier: User ID is not set');
+        return;
+      }
+
+      if (_auth.currentUser?.isAnonymous == true) {
+        debugPrint('FavoritesNotifier: Anonymous users cannot add favorites');
         return;
       }
 

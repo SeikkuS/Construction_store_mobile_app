@@ -5,46 +5,30 @@ import 'package:construction_store_mobile_app/models/product_model.dart';
 import 'package:construction_store_mobile_app/views/shared/stagger_tile.dart';
 
 class LatestProducts extends StatelessWidget {
-  const LatestProducts({super.key, required Future<List<Products>> products})
-    : _products = products;
+  const LatestProducts({super.key, required this.products});
 
-  final Future<List<Products>> _products;
+  final List<Products> products;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Products>>(
-      future: _products,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text("Error ${snapshot.error}");
-        } else {
-          final ruuvi = snapshot.data;
-          return MasonryGridView.builder(
-            padding: EdgeInsets.zero,
-            gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            crossAxisSpacing: 20.w,
-            mainAxisSpacing: 16.h,
-            itemCount: ruuvi!.length,
-            scrollDirection: Axis.vertical,
-            itemBuilder: (context, index) {
-              final product = snapshot.data![index];
-
-              double tileHeight =
-                  (index % 4 == 1 || index % 4 == 3) ? 285.h : 252.h;
-
-              return StaggerTile(
-                imagePath: product.imageUrl,
-                name: product.name,
-                price: "${product.price}€",
-                height: tileHeight,
-              );
-            },
-          );
-        }
+    return MasonryGridView.builder(
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
+      crossAxisSpacing: 20.w,
+      mainAxisSpacing: 16.h,
+      itemCount: products.length,
+      scrollDirection: Axis.vertical,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        double tileHeight = (index % 4 == 1 || index % 4 == 3) ? 285.h : 252.h;
+        return StaggerTile(
+          imagePath: product.imageUrl,
+          name: product.name,
+          price: "${product.price}€",
+          height: tileHeight,
+        );
       },
     );
   }

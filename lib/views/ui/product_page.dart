@@ -1,6 +1,8 @@
+import 'package:construction_store_mobile_app/views/shared/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
 import 'package:construction_store_mobile_app/views/shared/export.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key, required this.category, required this.id});
@@ -13,50 +15,53 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
+  Future<Products>? _productFuture;
+
   @override
   void initState() {
     super.initState();
-    // Load the product when the page is initialized
-    var productNotifier = Provider.of<ProductNotifier>(context, listen: false);
-    productNotifier.getProductById(widget.id); // Use the new method
-
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(
+    final productNotifier = Provider.of<ProductNotifier>(
       context,
       listen: false,
     );
-    favoritesNotifier.getFavorites();
+    productNotifier.getProductById(widget.id);
+    _productFuture = productNotifier.product;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var favoritesNotifier = Provider.of<FavoritesNotifier>(
+        context,
+        listen: false,
+      );
+      favoritesNotifier.getFavorites();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var productNotifier = Provider.of<ProductNotifier>(context);
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: FutureBuilder<Products>(
-        future: productNotifier.product,
+        future: _productFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error ${snapshot.error}"));
+          } else if (!snapshot.hasData) {
+            return const Center(child: Text("Product not found"));
           } else {
-            final product = snapshot.data;
-
+            final product = snapshot.data!;
             return Consumer<ProductNotifier>(
               builder: (context, productNotifier, child) {
                 return CustomScrollView(
                   slivers: [
-                    // SliverAppBar for the product image.
                     SliverAppBar(
                       automaticallyImplyLeading: false,
                       leadingWidth: 0,
                       title: Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
+                        padding: EdgeInsets.only(left: 10.h),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Close Button
                             GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
@@ -66,51 +71,60 @@ class _ProductPageState extends State<ProductPage> {
                                 color: Colors.black,
                               ),
                             ),
-
-                            // Icons (Favorites + More Options)
                             Row(
                               children: [
-                                // Favorite Icon
                                 Consumer<FavoritesNotifier>(
                                   builder: (context, favoritesNotifier, child) {
-                                    bool isFavorited = favoritesNotifier.ids
-                                        .contains(widget.id);
+                                    bool isAnonymous =
+                                        FirebaseAuth
+                                            .instance
+                                            .currentUser
+                                            ?.isAnonymous ??
+                                        true;
+                                    bool isFavorited =
+                                        !isAnonymous &&
+                                        favoritesNotifier.ids.contains(
+                                          widget.id,
+                                        );
                                     return GestureDetector(
                                       onTap: () async {
                                         final scaffoldMessenger =
                                             ScaffoldMessenger.of(context);
-
-                                        if (isFavorited) {
-                                          // Navigate to favorites when already favorited
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => Favorites(),
+                                        if (isAnonymous) {
+                                          scaffoldMessenger.showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                "Please log in to add to favorites",
+                                              ),
                                             ),
-                                          ).then((_) {
-                                            // Refresh state when returning from favorites
-                                            if (mounted) setState(() {});
-                                          });
+                                          );
                                         } else {
-                                          // Add to favorites
-                                          await favoritesNotifier.createFav({
-                                            "id": product!.id,
-                                            "name": product.name,
-                                            "price": product.price,
-                                            "category": product.category,
-                                            "image": product.imageUrl,
-                                          });
-
-                                          if (mounted) {
-                                            setState(() {});
-                                            scaffoldMessenger.showSnackBar(
-                                              SnackBar(
-                                                content: Text(
+                                          if (isFavorited) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) => Favorites(),
+                                              ),
+                                            ).then((_) {
+                                              if (mounted) setState(() {});
+                                            });
+                                          } else {
+                                            await favoritesNotifier.createFav({
+                                              "id": product.id,
+                                              "name": product.name,
+                                              "price": product.price,
+                                              "category": product.category,
+                                              "image": product.imageUrl,
+                                            });
+                                            if (mounted) {
+                                              setState(() {});
+                                              scaffoldMessenger.showSnackBar(
+                                                customSnackBar(
                                                   "${product.name} added to favorites!",
                                                 ),
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
+                                              );
+                                            }
                                           }
                                         }
                                       },
@@ -123,10 +137,7 @@ class _ProductPageState extends State<ProductPage> {
                                     );
                                   },
                                 ),
-
                                 SizedBox(width: 20.w),
-
-                                // Triple Dot Icon
                                 GestureDetector(
                                   onTap: null,
                                   child: const Icon(
@@ -148,14 +159,12 @@ class _ProductPageState extends State<ProductPage> {
                         titlePadding: EdgeInsets.zero,
                         background: SizedBox.expand(
                           child: Image.asset(
-                            product!.imageUrl,
+                            product.imageUrl,
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                     ),
-
-                    // SliverToBoxAdapter for product details.
                     SliverToBoxAdapter(
                       child: Container(
                         decoration: BoxDecoration(
@@ -226,7 +235,6 @@ class _ProductPageState extends State<ProductPage> {
                             SizedBox(height: 20.h),
                             Column(
                               children: [
-                                // Removed size selection as we don't need it anymore
                                 SizedBox(height: 10.h),
                                 const Divider(
                                   indent: 10,
@@ -243,11 +251,8 @@ class _ProductPageState extends State<ProductPage> {
                                       Colors.black,
                                       FontWeight.w700,
                                     ),
-                                    overflow:
-                                        TextOverflow
-                                            .ellipsis, // Optionally truncate overflowed text with an ellipsis
-                                    maxLines:
-                                        2, // Optionally limit the number of lines for the name
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
                                   ),
                                 ),
                                 SizedBox(height: 5.h),
@@ -268,20 +273,15 @@ class _ProductPageState extends State<ProductPage> {
                                     padding: EdgeInsets.only(top: 0.h),
                                     child: CheckOutButton(
                                       onTap: () async {
-                                        // Make sure to pass the correct product information to _createCart
                                         await _createCart({
-                                          "id":
-                                              product
-                                                  .id, // Use the product ID directly
+                                          "id": product.id,
                                           "name": product.name,
                                           "category": product.category,
                                           "image": product.imageUrl,
                                           "price": product.price,
                                           "qty": 1,
                                         });
-                                        Navigator.pop(
-                                          context,
-                                        ); // Close the Product page
+                                        Navigator.pop(context);
                                       },
                                       label: "Add to Cart",
                                     ),
@@ -303,8 +303,13 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  // Removed _createCart handling of sizes as it's no longer needed
   Future<void> _createCart(Map<String, dynamic> newCart) async {
     await Provider.of<CartProvider>(context, listen: false).addToCart(newCart);
+    ScaffoldMessenger.of(context).showSnackBar(
+      customSnackBar(
+        "${newCart['name']} added to cart!",
+        icon: Icons.shopping_cart,
+      ),
+    );
   }
 }
