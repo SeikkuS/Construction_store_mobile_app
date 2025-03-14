@@ -7,7 +7,7 @@ import 'package:construction_store_mobile_app/controllers/favorites_notifier.dar
 import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
 import 'package:construction_store_mobile_app/views/shared/reusable_text.dart';
 import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Add this import
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProductC extends StatefulWidget {
   const ProductC({
@@ -56,7 +56,6 @@ class _ProductCState extends State<ProductC> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image Section
               Expanded(
                 child: Stack(
                   children: [
@@ -74,11 +73,9 @@ class _ProductCState extends State<ProductC> {
                       top: 10,
                       child: Consumer<FavoritesNotifier>(
                         builder: (context, favoritesNotifier, child) {
-                          // Check if the user is anonymous
                           bool isAnonymous =
                               FirebaseAuth.instance.currentUser?.isAnonymous ??
                               true;
-                          // Only consider item favorited if user is not anonymous
                           bool isFavorited =
                               !isAnonymous &&
                               favoritesNotifier.ids.contains(widget.id);
@@ -88,7 +85,6 @@ class _ProductCState extends State<ProductC> {
                                 context,
                               );
                               if (isAnonymous) {
-                                // Prompt anonymous users to log in
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -98,7 +94,6 @@ class _ProductCState extends State<ProductC> {
                                 );
                               } else {
                                 if (isFavorited) {
-                                  // Navigate to favorites page if already favorited
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -106,7 +101,6 @@ class _ProductCState extends State<ProductC> {
                                     ),
                                   );
                                 } else {
-                                  // Add to favorites if not favorited
                                   await favoritesNotifier.createFav({
                                     "id": widget.id,
                                     "name": widget.name,
@@ -116,7 +110,16 @@ class _ProductCState extends State<ProductC> {
                                   });
                                   scaffoldMessenger.showSnackBar(
                                     customSnackBar(
-                                      "${widget.name} added to favorites!",
+                                      "${widget.name} added to favorites. Tap to view your favorites",
+                                      Icons.favorite,
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => Favorites(),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   );
                                 }
@@ -135,7 +138,6 @@ class _ProductCState extends State<ProductC> {
                   ],
                 ),
               ),
-              // Text Section (Name and Category)
               Padding(
                 padding: EdgeInsets.only(left: 8.w),
                 child: Column(
@@ -166,7 +168,6 @@ class _ProductCState extends State<ProductC> {
                   ],
                 ),
               ),
-              // Price and Color Selector Section
               Padding(
                 padding: EdgeInsets.only(left: 8.w, right: 8.w),
                 child: Row(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:construction_store_mobile_app/views/shared/export_packages.dart';
 import 'package:construction_store_mobile_app/views/shared/export.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:construction_store_mobile_app/views/ui/favoritespage.dart';
+import 'package:construction_store_mobile_app/views/ui/cartpage.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({super.key, required this.category, required this.id});
@@ -121,7 +123,18 @@ class _ProductPageState extends State<ProductPage> {
                                               setState(() {});
                                               scaffoldMessenger.showSnackBar(
                                                 customSnackBar(
-                                                  "${product.name} added to favorites!",
+                                                  "${product.name} added to favorites. Tap to view your favorites",
+                                                  Icons.favorite,
+                                                  () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder:
+                                                            (context) =>
+                                                                Favorites(),
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               );
                                             }
@@ -212,9 +225,7 @@ class _ProductPageState extends State<ProductPage> {
                                         size: 18,
                                         color: Colors.black,
                                       ),
-                                  onRatingUpdate: (rating) {
-                                    // Handle rating update.
-                                  },
+                                  onRatingUpdate: (rating) {},
                                 ),
                               ],
                             ),
@@ -281,7 +292,7 @@ class _ProductPageState extends State<ProductPage> {
                                           "price": product.price,
                                           "qty": 1,
                                         });
-                                        Navigator.pop(context);
+                                        // Removed Navigator.pop(context) to keep context valid
                                       },
                                       label: "Add to Cart",
                                     ),
@@ -307,8 +318,14 @@ class _ProductPageState extends State<ProductPage> {
     await Provider.of<CartProvider>(context, listen: false).addToCart(newCart);
     ScaffoldMessenger.of(context).showSnackBar(
       customSnackBar(
-        "${newCart['name']} added to cart!",
-        icon: Icons.shopping_cart,
+        "${newCart['name']} added to cart. Tap to view your cart",
+        Icons.shopping_cart,
+        () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CartPage()),
+          );
+        },
       ),
     );
   }

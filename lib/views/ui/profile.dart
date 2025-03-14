@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:construction_store_mobile_app/views/ui/login_page.dart';
+import 'package:construction_store_mobile_app/views/ui/packages_page.dart'; // Add this
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -100,6 +101,18 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: Text(
                           "Member since: ${user.metadata.creationTime?.toString().split(' ')[0] ?? 'Unknown'}",
                         ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.shopping_bag),
+                        title: const Text("Your Packages"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PackagesPage(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

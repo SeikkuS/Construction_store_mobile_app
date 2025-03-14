@@ -1,12 +1,13 @@
+import 'package:construction_store_mobile_app/views/shared/custom_snackbar.dart'; // Adjust path
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:construction_store_mobile_app/controllers/product_provider.dart';
 import 'package:construction_store_mobile_app/models/product_model.dart';
-import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
+import 'package:construction_store_mobile_app/views/shared/appstyle.dart'; // Adjust path
 import 'package:ionicons/ionicons.dart';
 import 'package:construction_store_mobile_app/controllers/cart_provider.dart';
+import 'package:construction_store_mobile_app/views/ui/cartpage.dart';
 
-// Helper function to calculate Levenshtein distance
 int _levenshteinDistance(String s, String t) {
   if (s == t) return 0;
   if (s.isEmpty) return t.length;
@@ -24,9 +25,9 @@ int _levenshteinDistance(String s, String t) {
     for (int j = 0; j < t.length; j++) {
       int cost = (s[i] == t[j]) ? 0 : 1;
       v1[j + 1] = [
-        v1[j] + 1, // Insertion
-        v0[j + 1] + 1, // Deletion
-        v0[j] + cost, // Substitution
+        v1[j] + 1,
+        v0[j + 1] + 1,
+        v0[j] + cost,
       ].reduce((a, b) => a < b ? a : b);
     }
     List<int> temp = v0;
@@ -87,21 +88,18 @@ class _SearchPageState extends State<SearchPage> {
             final categoryLower = product.category.toLowerCase();
             final queryLower = query;
 
-            // Exact match (original logic)
             if (nameLower.contains(queryLower) ||
                 categoryLower.contains(queryLower)) {
               return true;
             }
 
-            // Fuzzy match using Levenshtein distance
-            const int threshold = 2; // Allow up to 2 edits
+            const int threshold = 2;
             final nameDistance = _levenshteinDistance(nameLower, queryLower);
             final categoryDistance = _levenshteinDistance(
               categoryLower,
               queryLower,
             );
 
-            // Include if within threshold
             return nameDistance <= threshold || categoryDistance <= threshold;
           }).toList();
     });
@@ -179,7 +177,6 @@ class _ProductSearchItemState extends State<ProductSearchItem> {
           ),
           child: Row(
             children: [
-              // Product Image
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Image.asset(
@@ -189,7 +186,6 @@ class _ProductSearchItemState extends State<ProductSearchItem> {
                   fit: BoxFit.fill,
                 ),
               ),
-              // Product Details
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 12, left: 20),
@@ -218,7 +214,6 @@ class _ProductSearchItemState extends State<ProductSearchItem> {
                   ),
                 ),
               ),
-              // Quantity Selector and Add to Cart Icon
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Row(
@@ -260,11 +255,11 @@ class _ProductSearchItemState extends State<ProductSearchItem> {
                     const SizedBox(width: 10),
                     IconButton(
                       icon: Icon(
-                        Icons.add_shopping_cart, // Cart with plus sign
+                        Icons.add_shopping_cart,
                         size: 24,
-                        color: Colors.black, // Match app theme
+                        color: Colors.black,
                       ),
-                      tooltip: 'Add to Cart', // Accessibility hint
+                      tooltip: 'Add to Cart',
                       onPressed: () {
                         final cartProvider = Provider.of<CartProvider>(
                           context,
@@ -279,14 +274,21 @@ class _ProductSearchItemState extends State<ProductSearchItem> {
                           "qty": quantity,
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "${widget.product.name} added to cart",
-                            ),
+                          customSnackBar(
+                            "${widget.product.name} added to cart. Tap to view your cart",
+                            Icons.shopping_cart,
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CartPage(),
+                                ),
+                              );
+                            },
                           ),
                         );
                         setState(() {
-                          quantity = 1; // Reset quantity after adding
+                          quantity = 1;
                         });
                       },
                     ),

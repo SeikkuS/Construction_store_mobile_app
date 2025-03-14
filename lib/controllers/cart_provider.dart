@@ -17,7 +17,6 @@ class CartProvider with ChangeNotifier {
 
   void setUserId(String userId) {
     this.userId = userId;
-    // Delay getCart() until after the build phase
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getCart();
     });
@@ -31,7 +30,6 @@ class CartProvider with ChangeNotifier {
       }
 
       if (_auth.currentUser?.isAnonymous == true) {
-        // For anonymous users, rely on local state only (no fetch from Firestore)
         return;
       }
 
@@ -100,11 +98,26 @@ class CartProvider with ChangeNotifier {
         (item) => item['id'] == cartItem['id'],
       );
       if (existingItemIndex != -1) {
-        await incrementQty(_cart[existingItemIndex]['key']);
+        // Item exists, add the cartItem's qty to the existing qty
+        var updatedItem = Map<String, dynamic>.from(_cart[existingItemIndex]);
+        updatedItem['qty'] += cartItem['qty'];
+        if (_auth.currentUser?.isAnonymous == true) {
+          _cart[existingItemIndex] = updatedItem;
+          notifyListeners();
+        } else {
+          await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('cart')
+              .doc(updatedItem['key'])
+              .update({'qty': updatedItem['qty']});
+          _cart[existingItemIndex] = updatedItem;
+          notifyListeners();
+        }
       } else {
         if (_auth.currentUser?.isAnonymous == true) {
           _cart.add({
-            "key": UniqueKey().toString(), // Temporary local key
+            "key": UniqueKey().toString(),
             "id": cartItem['id'],
             "category": cartItem['category'],
             "name": cartItem['name'],
