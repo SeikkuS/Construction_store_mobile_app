@@ -33,8 +33,6 @@ class _ProductCState extends State<ProductC> {
 
   @override
   Widget build(BuildContext context) {
-    var favoritesNotifier = Provider.of<FavoritesNotifier>(context);
-
     return Padding(
       padding: EdgeInsets.only(left: 8.w, right: 20.w),
       child: ClipRRect(

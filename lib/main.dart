@@ -5,7 +5,8 @@ import 'package:construction_store_mobile_app/controllers/cart_provider.dart';
 import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
 import 'package:construction_store_mobile_app/controllers/mainscreen_provider.dart';
 import 'package:construction_store_mobile_app/controllers/product_provider.dart';
-import 'package:construction_store_mobile_app/controllers/package_provider.dart'; // Add this
+import 'package:construction_store_mobile_app/controllers/package_provider.dart';
+import 'package:construction_store_mobile_app/controllers/order_provider.dart'; // Add this
 import 'package:construction_store_mobile_app/views/ui/mainscreen.dart';
 import 'package:construction_store_mobile_app/views/ui/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,8 +24,9 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ProductNotifier()),
         ChangeNotifierProvider(create: (context) => FavoritesNotifier()),
         ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => PackageProvider()),
         ChangeNotifierProvider(
-          create: (context) => PackageProvider(),
+          create: (context) => OrderProvider(),
         ), // Add this
       ],
       child: const MyApp(),
@@ -79,10 +81,15 @@ class AuthWrapper extends StatelessWidget {
               final packageProvider = Provider.of<PackageProvider>(
                 context,
                 listen: false,
+              );
+              final orderProvider = Provider.of<OrderProvider>(
+                context,
+                listen: false,
               ); // Add this
               favoritesNotifier.setUserId(user.uid);
               cartProvider.setUserId(user.uid);
-              packageProvider.setUserId(user.uid); // Add this
+              packageProvider.setUserId(user.uid);
+              orderProvider.setUserId(user.uid); // Add this
             });
             return MainScreen();
           } else {

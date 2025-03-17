@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:construction_store_mobile_app/views/ui/login_page.dart';
-import 'package:construction_store_mobile_app/views/ui/packages_page.dart'; // Add this
+import 'package:construction_store_mobile_app/views/ui/packages_page.dart';
+import 'package:construction_store_mobile_app/views/ui/orders_page.dart'; // Add this
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -110,6 +111,18 @@ class _ProfilePageState extends State<ProfilePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const PackagesPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.receipt_long),
+                        title: const Text("Your Orders"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const OrdersPage(),
                             ),
                           );
                         },
