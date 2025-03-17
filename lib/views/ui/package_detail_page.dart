@@ -1,5 +1,4 @@
 import 'package:construction_store_mobile_app/views/shared/custom_snackbar.dart'; // Adjust path
-import 'package:construction_store_mobile_app/views/ui/packages_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:construction_store_mobile_app/controllers/cart_provider.dart';

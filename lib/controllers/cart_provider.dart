@@ -15,6 +15,14 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  double get totalPrice {
+    double total = 0.0;
+    for (var item in _cart) {
+      total += item['price'] * item['qty'];
+    }
+    return total;
+  }
+
   void setUserId(String userId) {
     this.userId = userId;
     WidgetsBinding.instance.addPostFrameCallback((_) {

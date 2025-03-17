@@ -6,6 +6,7 @@ import 'package:construction_store_mobile_app/views/shared/export.dart'; // Adju
 import 'package:construction_store_mobile_app/views/ui/packages_page.dart'; // Adjust path for PackagesPage
 import 'package:construction_store_mobile_app/controllers/cart_provider.dart'; // Adjust path
 import 'package:construction_store_mobile_app/controllers/package_provider.dart'; // Adjust path
+import 'package:construction_store_mobile_app/views/ui/checkout_page.dart'; // Import CheckoutPage
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -37,9 +38,18 @@ class _CartPageState extends State<CartPage> {
                   },
                   child: const Icon(Ionicons.close, color: Colors.black),
                 ),
-                Text(
-                  "My Cart",
-                  style: appstyle(36, Colors.black, FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "My Cart",
+                      style: appstyle(36, Colors.black, FontWeight.bold),
+                    ),
+                    Text(
+                      "Total: €${cartProvider.totalPrice.toStringAsFixed(2)}",
+                      style: appstyle(18, Colors.black, FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 Expanded(
@@ -262,8 +272,17 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Assuming CheckOutButton is a custom widget; adjust as needed
-                const CheckOutButton(label: "Proceed to Checkout"),
+                CheckOutButton(
+                  label: "Proceed to Checkout",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CheckoutPage(),
+                      ),
+                    );
+                  },
+                ),
               ],
             );
           },

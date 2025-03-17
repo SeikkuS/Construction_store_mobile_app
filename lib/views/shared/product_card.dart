@@ -1,7 +1,6 @@
 import 'package:construction_store_mobile_app/views/shared/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:construction_store_mobile_app/controllers/favorites_notifier.dart';
 import 'package:construction_store_mobile_app/views/shared/appstyle.dart';
